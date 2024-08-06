@@ -1,4 +1,4 @@
-import { ChakraProvider } from "@chakra-ui/react"
+import { ProvidersChakra } from "@/providers/chakra";
 
 export const metadata = {
     title: '',
@@ -13,9 +13,9 @@ export default function RootLayout({
     return (
         <html lang="pt-br">
             <body>
-                <ChakraProvider>
+                <ProvidersChakra>
                     {children}
-                </ChakraProvider>
+                </ProvidersChakra>
             </body>
         </html>
     )

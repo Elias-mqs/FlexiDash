@@ -1,7 +1,6 @@
 
 import { Select } from "@chakra-ui/react"
 import { Suspense, useEffect, useState } from "react";
-import { env } from "@/env";
 
 interface Armaz {
     arma: string;
@@ -17,9 +16,20 @@ export function Armazens({ field }: any) {
 
     useEffect(() => {
         async function getArmaz() {
-            const res = await fetch(`${env.ENDPOINT_ESTOQUE}CARMA=01`, { method: 'GET' })
-            const data: ArmazProps = await res.json()
-            setArmaz(data.prate)
+            try {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_ENDPOINT_ESTOQUE}CARMA=01`,
+                    { method: 'GET', cache: 'force-cache', next: { revalidate: 3600 } });
+
+                if (!res.ok) {
+                    throw new Error("Failed to fetch data");
+                }
+
+                const data: ArmazProps = await res.json();
+                setArmaz(data.prate);
+
+            } catch (error) {
+                throw new Error("Failed to fetch data");
+            }
         }
 
         getArmaz();
@@ -27,10 +37,9 @@ export function Armazens({ field }: any) {
 
     console.log("renderizando no arquivo armazem")
 
-
     return (
         <Suspense>
-            <Select {...field} placeholder='XX' color='#000' focusBorderColor='blue.300' required>
+            <Select {...field} placeholder='XX' color='#000' focusBorderColor='blue.300'  required>
                 {armaz.map((armaz) => (
                     <option key={armaz.arma} value={armaz.arma} style={{ fontWeight: 500, backgroundColor: '#f5f5f5' }}>
                         {armaz.arma}

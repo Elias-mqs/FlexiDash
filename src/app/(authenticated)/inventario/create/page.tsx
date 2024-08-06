@@ -34,12 +34,11 @@ export default function CreateInventory() {
     
 
     const handleForm = (data: FormProps): void => {
-        console.log(data)
         resetField('document');
         resetField('descPra');
         resetField('armaz');
 
-        router.push(`/inventario/shelf/details?descpra=${data.descPra}&armaz=${data.armaz}`)
+        router.push(`/inventario/shelf/details?descpra=${data.descPra}&armaz=${data.armaz}&doc=${data.document}`)
 
     }
 
@@ -58,7 +57,7 @@ export default function CreateInventory() {
                     render={({ field: { value, onChange } }) => (
                         <Flex w='100%' p={2} direction='column'>
                             <Text fontWeight={600} fontSize={14} pb={1} pl={2} color='gray.500'>Código inventário:</Text>
-                            <Input value={value} onChange={onChange} size='md' focusBorderColor='blue.300' placeholder='Documento' required />
+                            <Input value={value} onChange={(e) => onChange(e.target.value.trim())} size='md' focusBorderColor='blue.300' placeholder='Documento' required />
                         </Flex>
                     )}
                 />
@@ -70,7 +69,7 @@ export default function CreateInventory() {
                     render={({ field: { value, onChange } }) => (
                         <Flex w='100%' p={2} direction='column'>
                             <Text fontWeight={600} fontSize={14} pb={1} pl={2} color='gray.500'>Prateleira:</Text>
-                            <Input value={value} onChange={onChange} size='md' focusBorderColor='blue.300' placeholder='XXX/XX' required />
+                            <Input value={value} onChange={(e) => onChange(e.target.value.trim().toUpperCase())} size='md' focusBorderColor='blue.300' placeholder='XXX/XX' required />
                         </Flex>
                     )}
                 />

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { ChakraProvider, Container, Flex } from '@chakra-ui/react';
+import { ProvidersChakra } from "@/providers/chakra";
+import { Container, Flex } from '@chakra-ui/react';
 import { Footer, Header, Sidebar } from "@/components";
 import { Roboto } from 'next/font/google';
 
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
     description: "Aplicação para controle do inventário da H2L",
 };
 
-const bodyFont = Roboto({
+const robotoFont = Roboto({
     weight: ['100', '400', '500', '700'],
     subsets: ['latin'],
 
@@ -21,8 +22,8 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="pt-br">
-            <body style={{ background: '#EDF2F7' }} className={bodyFont.className}>
-                <ChakraProvider>
+            <body style={{ background: '#EDF2F7' }} className={robotoFont.className}>
+                <ProvidersChakra>
                     <Container bg='gray.100' maxW='container.xl' px={4} >
                         <Flex>
                             {/* <Sidebar /> */}
@@ -36,7 +37,7 @@ export default function RootLayout({
                             </Flex>
                         </Flex>
                     </Container>
-                </ChakraProvider>
+                </ProvidersChakra>
             </body>
         </html>
     );

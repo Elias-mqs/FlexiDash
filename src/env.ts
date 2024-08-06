@@ -1,16 +1,23 @@
-'use server'
+// Criei esse arquivo para realizar validações das variaveis de ambiente, porém sem sucesso
 
 import { z } from 'zod';
 
+console.log('rodando env ts')
+
 const envSchema = z.object({
-    ENDPOINT_ESTOQUE: z.string().url(),
-    NEXT_PUBLIC_ENDPOINT_ESTOQUE: z.string().url(),
+    ENDPOINT_ESTOQUE: z.string(),
+    NEXT_PUBLIC_ENDPOINT_ESTOQUE: z.string()
 })
 
-console.log(process.env.NEXT_PUBLIC_ENDPOINT_ESTOQUE)
-console.log(process.env.ENDPOINT_ESTOQUE)
+console.log('passou pelo schema')
 
-export const env = envSchema.parse(process.env)
+console.log(process.env)
+
+if(!process.env){
+    console.log('Não reconheceu: ', process.env)
+}
+
+export const envs = envSchema.parse(process.env)
 
 
 
