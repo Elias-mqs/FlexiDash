@@ -10,13 +10,11 @@ import { Armazens } from "./armazens";
 
 interface FormProps {
     document: string,
-    descPra: string,
     armaz: string
 }
 
 const schema = z.object({
     document: z.coerce.string().max(9),
-    descPra: z.coerce.string().max(20),
     armaz: z.coerce.string().max(2)
 })
 
@@ -35,10 +33,9 @@ export default function CreateInventory() {
 
     const handleForm = (data: FormProps): void => {
         resetField('document');
-        resetField('descPra');
         resetField('armaz');
 
-        router.push(`/inventario/shelf/details?descpra=${data.descPra}&armaz=${data.armaz}&doc=${data.document}`)
+        router.push(`/inventario/shelf/details?armaz=${data.armaz}&doc=${data.document}`)
 
     }
 
@@ -47,8 +44,8 @@ export default function CreateInventory() {
     return (
         <Flex w='100%' overflow='auto' direction='column' align='center' >
 
-            <Grid as='form' onSubmit={handleSubmit(handleForm)} w={'100%'} maxW={{ base:'100%', lg:'container.lg' }} templateColumns={{ base: 'repeat(1, 1fr)', lg: 'repeat(4, 1fr)', sm: 'repeat(2, 1fr)' }}
-             gap={{ base: 2, lg: 4 }}>
+            <Grid as='form' onSubmit={handleSubmit(handleForm)} w={'100%'} maxW='container.md' templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)', sm: 'repeat(2, 1fr)' }}
+             gap={{ base: 1, md: 4 }}>
 
 
                 <Controller
@@ -58,18 +55,6 @@ export default function CreateInventory() {
                         <Flex w='100%' p={2} direction='column'>
                             <Text fontWeight={600} fontSize={14} pb={1} pl={2} color='gray.500'>Código inventário:</Text>
                             <Input value={value} onChange={(e) => onChange(e.target.value.trim())} size='md' focusBorderColor='blue.300' placeholder='Documento' required />
-                        </Flex>
-                    )}
-                />
-
-
-                <Controller
-                    name='descPra'
-                    control={control}
-                    render={({ field: { value, onChange } }) => (
-                        <Flex w='100%' p={2} direction='column'>
-                            <Text fontWeight={600} fontSize={14} pb={1} pl={2} color='gray.500'>Prateleira:</Text>
-                            <Input value={value} onChange={(e) => onChange(e.target.value.trim().toUpperCase())} size='md' focusBorderColor='blue.300' placeholder='XXX/XX' required />
                         </Flex>
                     )}
                 />

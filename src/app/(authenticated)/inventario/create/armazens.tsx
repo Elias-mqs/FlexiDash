@@ -2,22 +2,31 @@
 import { Select } from "@chakra-ui/react"
 import { Suspense, useEffect, useState } from "react";
 
-interface Armaz {
-    arma: string;
+// USAR ESSE DEPOIS DE COMPILAR(VAI SER COMPLADO HJ A NOITE 07/08) A ULTIMA ALTERTAÇÃO DA API
+// interface CodArmazProps {
+//     cod: string
+// }
+
+// interface ArmazProps {
+//     armaz: CodArmazProps[]
+// }
+
+interface CodArmazProps {
+    codigo: string
 }
 
 interface ArmazProps {
-    prate: Armaz[];
+    armazens: CodArmazProps[]
 }
 
 export function Armazens({ field }: any) {
 
-    const [armaz, setArmaz] = useState<Armaz[]>([]);
+    const [armaz, setArmaz] = useState<CodArmazProps[]>([]);
 
     useEffect(() => {
         async function getArmaz() {
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_ENDPOINT_ESTOQUE}CARMA=01`,
+                const res = await fetch(`${process.env.NEXT_PUBLIC_ENDPOINT_ARMAZENS}`,
                     { method: 'GET', cache: 'force-cache', next: { revalidate: 3600 } });
 
                 if (!res.ok) {
@@ -25,7 +34,10 @@ export function Armazens({ field }: any) {
                 }
 
                 const data: ArmazProps = await res.json();
-                setArmaz(data.prate);
+
+                console.log(data)
+
+                setArmaz(data.armazens);
 
             } catch (error) {
                 throw new Error("Failed to fetch data");
@@ -35,20 +47,18 @@ export function Armazens({ field }: any) {
         getArmaz();
     }, [])
 
+
     console.log("renderizando no arquivo armazem")
 
     return (
         <Suspense>
             <Select {...field} placeholder='XX' color='#000' focusBorderColor='blue.300'  required>
                 {armaz.map((armaz) => (
-                    <option key={armaz.arma} value={armaz.arma} style={{ fontWeight: 500, backgroundColor: '#f5f5f5' }}>
-                        {armaz.arma}
+                    <option key={armaz.codigo} value={armaz.codigo} style={{ fontWeight: 500, backgroundColor: '#f5f5f5' }}>
+                        {armaz.codigo}
                     </option>)
                 )}
             </Select>
         </Suspense>
     )
 }
-
-//PRECISO FAZER ESSE COMPONENTE FUNCIONAR DE ALGUMA FORMA, ESTA FAZENDO A REQUISIÇÃO, O PROBLEMA ESTA NA HORA DE FAZER O MAP
-// assistir esse video: https://www.youtube.com/watch?v=6JnkwfrAI-U&t=1089s
