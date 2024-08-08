@@ -2,11 +2,12 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Button, Flex, Grid, Input, Select, Text, useMediaQuery } from "@chakra-ui/react";
+import { Button, Flex, Grid, Input, Select, Text, useMediaQuery, useToast } from "@chakra-ui/react";
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from 'zod';
 import { Armazens } from "./armazens";
+import { api } from "@/services/api";
 
 interface FormProps {
     document: string,
@@ -23,20 +24,38 @@ export default function CreateInventory() {
 
 
     const router = useRouter();
+    const toast = useToast();
 
 
     const { handleSubmit, control, resetField } = useForm({
         resolver: zodResolver(schema),
-        defaultValues: { document: '', descPra: '', armaz: '' }
+        defaultValues: { document: '', armaz: '' }
     })
-    
 
-    const handleForm = (data: FormProps): void => {
-        resetField('document');
-        resetField('armaz');
 
-        router.push(`/inventario/shelf/details?armaz=${data.armaz}&doc=${data.document}`)
 
+    const handleForm = async (data: FormProps) => {
+
+        console.log(data)
+
+        try {
+
+            // VOU ADICIONAR MAIS UMAS VARIAVEIS SÓ PARA TESTAR A API
+            const res = await api.post('invent/create', {...data, idUser: 10 });
+
+            toast({ title: "Sucesso!", description: 'Inventário iniciado', status: 'success', position: 'top', duration: 2000, isClosable: true, });
+
+            console.log(res)
+
+            resetField('document');
+            resetField('armaz');
+
+            // router.push(`/inventario/shelf/details?armaz=${data.armaz}&doc=${data.document}`)
+
+        } catch (error: any) {
+            console.log(error)
+            return toast({ title: error.data?.title, description: error.data?.message, status: 'error', position: 'top', duration: 3000, isClosable: true, });
+        }
     }
 
     console.log('renderizando page create')
@@ -45,7 +64,7 @@ export default function CreateInventory() {
         <Flex w='100%' overflow='auto' direction='column' align='center' >
 
             <Grid as='form' onSubmit={handleSubmit(handleForm)} w={'100%'} maxW='container.md' templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)', sm: 'repeat(2, 1fr)' }}
-             gap={{ base: 1, md: 4 }}>
+                gap={{ base: 1, md: 4 }}>
 
 
                 <Controller
@@ -54,7 +73,7 @@ export default function CreateInventory() {
                     render={({ field: { value, onChange } }) => (
                         <Flex w='100%' p={2} direction='column'>
                             <Text fontWeight={600} fontSize={14} pb={1} pl={2} color='gray.500'>Código inventário:</Text>
-                            <Input value={value} onChange={(e) => onChange(e.target.value.trim())} size='md' focusBorderColor='blue.300' placeholder='Documento' required />
+                            <Input value={value} maxLength={9} onChange={(e) => onChange(e.target.value.trim().toUpperCase())} size='md' focusBorderColor='blue.300' placeholder='Documento' required />
                         </Flex>
                     )}
                 />
