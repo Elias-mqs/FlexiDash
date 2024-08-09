@@ -1,9 +1,15 @@
 import { ProvidersChakra } from "@/providers/chakra";
+import { Roboto } from "next/font/google";
 
 export const metadata = {
     title: '',
     description: '',
 }
+
+const robotoFont = Roboto({
+    weight: ['100', '400', '500', '700'],
+    subsets: ['latin'],
+})
 
 export default function RootLayout({
     children,
@@ -12,7 +18,7 @@ export default function RootLayout({
 }) {
     return (
         <html lang="pt-br">
-            <body>
+            <body className={robotoFont.className}>
                 <ProvidersChakra>
                     {children}
                 </ProvidersChakra>

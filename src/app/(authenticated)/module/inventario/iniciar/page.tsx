@@ -7,7 +7,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from 'zod';
 import { Armazens } from "./armazens";
-import { api } from "@/services/api";
+import { api } from "@/services";
 
 interface FormProps {
     document: string,
