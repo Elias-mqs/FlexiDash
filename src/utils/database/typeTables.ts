@@ -8,33 +8,25 @@ import {
 } from 'kysely'
 
 export interface Database {
-    user: UserTable,
+    sys_users: UserTable,
     inv_documents: InventarioTable,
     pet: PetTable
 }
 
 
-//TABELA USER, FUTURAMENTE VOU CORRIGIR ESSE SCHEMA
+
 export interface UserTable {
-    id: Generated<number>
-
-    first_name: string
-    gender: 'man' | 'woman' | 'other'
-
-    last_name: string | null
-    created_at: ColumnType<Date, string | undefined, never>
-
-    metadata: JSONColumnType<{
-        login_at: string
-        ip: string | null
-        agent: string | null
-        plan: 'free' | 'premium'
-    }>
+    usr_id: Generated<number>
+    usr_name: string
+    usr_username: string
+    usr_email: string
+    usr_pass: string
+    usr_ativo: boolean      // VERIFICAR SE DA PARA SER BOOLEAN, OU SE VAI PRECISAR SER 1 OU 0 POR CAUSA DO BANCO
 }
 
-export type Person = Selectable<UserTable>
-export type NewPerson = Insertable<UserTable>
-export type PersonUpdate = Updateable<UserTable>
+export type User = Selectable<UserTable>
+export type NewUser = Insertable<UserTable>
+export type UserUpdate = Updateable<UserTable>
 
 
 

@@ -15,11 +15,6 @@ import { FormsCrypt, api } from "@/services";
 
 
 
-interface LoginProps {
-    username: string,
-    pass: string
-}
-
 export default function Login() {
 
     const toast = useToast();
@@ -34,15 +29,15 @@ export default function Login() {
 
 
 
-    const handleLogin = async (data: LoginProps) => {
+    const handleLogin = async (data: {username: string, pass: string}) => {
 
         const dataForm = FormsCrypt.dataCrypt(data);
         console.log(dataForm)
         try {
 
-            const res = await api.post('system/login', `data:"${dataForm}"`);
+            const res = await api.post('system/login', dataForm);
 
-            toast({ title: "Sucesso!", description: 'Inventário iniciado', status: 'success', position: 'top', duration: 2000, isClosable: true, });
+            toast({ title: "Sucesso!", description: res.data.message, status: 'success', position: 'top', duration: 2000, isClosable: true, });
 
             console.log(res)
 
@@ -129,7 +124,7 @@ export default function Login() {
                                 Entrar
                             </Button>
 
-                            <Text h={6} mt={{ base: 4, sm: 0 }} textAlign='center' fontSize={14} fontWeight={500} color='blue.700' cursor='pointer' transition="all .1s linear" _hover={{ fontWeight: 600 }}>
+                            <Text h={6} mt={{ base: 4, sm: 0 }} textAlign='center' fontSize={14} fontWeight={500} color='blue.700' cursor='pointer' transition="all .05s linear" _hover={{ fontWeight: 600, transform:'scale(1.1)' }}>
                                 Esqueceu a senha?
                             </Text>
                         </Flex>

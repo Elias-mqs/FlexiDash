@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import dayjs from 'dayjs';
-import { createInv, findInventByCod } from "@/utils/database/repositories/InventRepository";
+import { createInv, findInventByCod } from "@/utils/database/repositories/invDocuments";
 
 
 interface FormProps {

@@ -35,7 +35,7 @@ export async function findInvent(criteria: Partial<Inventory>) {
         query = query.where('doc_inicio', 'like', `${criteria.doc_inicio}%`)
     }
 
-    if (criteria.doc_inicio) {
+    if (criteria.doc_fim) {
         query = query.where('doc_fim', 'like', `${criteria.doc_fim}%`)
     }
 
@@ -50,6 +50,6 @@ export async function createInv(inventory: NewInventory) {
     return await findInventByCod(inventory.doc_codInv)
 }
 
-export async function updatePerson(codInv: string, updateWith: InventoryUpdate) {
+export async function updateInventory(codInv: string, updateWith: InventoryUpdate) {
     await db.updateTable('inv_documents').set(updateWith).where('doc_codInv', '=', codInv).execute()
 }
