@@ -12,13 +12,14 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { resolverLogin } from './schemas'
 import { FormsCrypt, api } from "@/services";
+import { useRouter } from "next/navigation";
 
 
 
 export default function Login() {
 
     const toast = useToast();
-
+    const router = useRouter();
 
     const { handleSubmit, control, formState: { errors }, resetField } = useForm({
         resolver: resolverLogin,
@@ -29,30 +30,21 @@ export default function Login() {
 
 
 
-    const handleLogin = async (data: {username: string, pass: string}) => {
+    const handleLogin = async (data: { username: string, pass: string }) => {
 
         const dataForm = FormsCrypt.dataCrypt(data);
-        console.log(dataForm)
-        try {
 
+        try {
             const res = await api.post('system/login', dataForm);
 
             toast({ title: "Sucesso!", description: res.data.message, status: 'success', position: 'top', duration: 2000, isClosable: true, });
 
-            console.log(res)
-
-            // resetField('username');
-            // resetField('pass');
-
-            // router.push(`/inventario/shelf/details?armaz=${data.armaz}&doc=${data.document}`)
+            router.push('/')
 
         } catch (error: any) {
             console.log(error)
             return toast({ title: error.data?.title, description: error.data?.message, status: 'error', position: 'top', duration: 3000, isClosable: true, });
         }
-
-        console.log(data)
-        console.log('Fazendo login')
     }
 
     console.log('renderizando')
@@ -87,7 +79,7 @@ export default function Login() {
                                             <FaUser size={16} />
                                         </InputLeftElement>
 
-                                        <Input value={value} onChange={onChange} size='lg' bg='#e0e0e0' border='1px solid #000' placeholder='username' />
+                                        <Input value={value} onChange={(e) => onChange(e.target.value.trim().toLowerCase())} size='lg' bg='#e0e0e0' border='1px solid #000' placeholder='username' />
                                     </InputGroup>
                                     {errors.username && <Text color='red' fontSize={14} pt={1} pl={2}>{errors.username.message}</Text>}
                                 </Flex>
@@ -107,7 +99,8 @@ export default function Login() {
                                             <FaLock size={16} />
                                         </InputLeftElement>
 
-                                        <Input value={value} onChange={onChange} type={show ? 'text' : 'password'} size='lg' bg='#e0e0e0' border='1px solid #000' placeholder='password' />
+                                        <Input value={value} onChange={(e) => onChange(e.target.value.trim())} type={show ? 'text' : 'password'} size='lg' bg='#e0e0e0'
+                                            border='1px solid #000' placeholder='password' />
 
                                         <InputRightElement onClick={(e) => { e.preventDefault(); setShow(!show) }} cursor='pointer' _hover={{ color: 'blue.600' }}>
                                             {show ? <IoMdEye size={22} /> : <RiEyeCloseLine />}
@@ -124,7 +117,8 @@ export default function Login() {
                                 Entrar
                             </Button>
 
-                            <Text h={6} mt={{ base: 4, sm: 0 }} textAlign='center' fontSize={14} fontWeight={500} color='blue.700' cursor='pointer' transition="all .05s linear" _hover={{ fontWeight: 600, transform:'scale(1.1)' }}>
+                            <Text h={6} mt={{ base: 4, sm: 0 }} textAlign='center' fontSize={14} fontWeight={500} color='blue.700' cursor='pointer' transition="all .05s linear"
+                                _hover={{ fontWeight: 600, transform: 'scale(1.1)' }}>
                                 Esqueceu a senha?
                             </Text>
                         </Flex>

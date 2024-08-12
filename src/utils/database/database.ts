@@ -2,14 +2,15 @@ import { Database } from "./typeTables";
 import { createPool } from 'mysql2';
 import { Kysely, MysqlDialect } from 'kysely';
 
+
 const dialect = new MysqlDialect({
     pool: createPool({
-        database: 'h2l-apps',
-        host: 'localhost',
-        user: 'root',
-        password: '',
-        port: 3306,
-        connectionLimit: 10
+        database: process.env.DB_NAME,
+        host: process.env.HOST,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASS,
+        port: Number(process.env.DB_PORT),
+        connectionLimit: Number(process.env.DB_LIMIT)
     })
 })
 
