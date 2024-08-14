@@ -1,6 +1,6 @@
 import { PassCrypt } from '@/services';
-import { db } from '../database';
-import { User, NewUser, UserUpdate } from '../typeTables';
+import { db } from '@/utils/database';
+import { User, NewUser, UserUpdate } from '@/utils/database/typeTables';
 
 export async function findUserById(usrId: number) {
     return await db.selectFrom('sys_users')

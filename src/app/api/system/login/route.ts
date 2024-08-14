@@ -1,7 +1,7 @@
 import { FormsCrypt, JwtService, PassCrypt } from "@/services";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { findUser } from "@/utils/database/repositories/sysUsers";
+import { findUser } from "@/utils/database/repositories/system/sysUsers";
 import { remapUsers } from "@/utils/remappers";
 
 export async function POST(request: Request) {

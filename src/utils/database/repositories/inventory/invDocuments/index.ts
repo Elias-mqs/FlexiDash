@@ -1,5 +1,5 @@
-import { db } from '../database';
-import { Inventory, NewInventory, InventoryUpdate } from '../typeTables';
+import { db } from '@/utils/database';
+import { Inventory, NewInventory, InventoryUpdate } from '@/utils/database/typeTables';
 
 export async function findInventByCod(codInv: string) {
     return await db.selectFrom('inv_documents')

@@ -1,8 +1,7 @@
 import { FormsCrypt } from "@/services";
 import { NextResponse } from "next/server";
-import { findUser, createUser, findUserById } from "@/utils/database/repositories/sysUsers";
+import { findUser, createUser } from "@/utils/database/repositories/system/sysUsers";
 import { remapUsers } from "@/utils/remappers";
-import { db } from "@/utils/database/database";
 
 
 interface FormProps {
