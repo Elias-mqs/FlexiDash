@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { Flex, Grid, Input, Text } from "@chakra-ui/react";
-import { ShelfItems } from "@/components";
+import { ShelfItems } from "@/components/ui/Inventory";
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from 'zod';

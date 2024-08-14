@@ -42,7 +42,6 @@ export default function Login() {
             router.push('/')
 
         } catch (error: any) {
-            console.log(error)
             return toast({ title: error.data?.title, description: error.data?.message, status: 'error', position: 'top', duration: 3000, isClosable: true, });
         }
     }
@@ -79,7 +78,7 @@ export default function Login() {
                                             <FaUser size={16} />
                                         </InputLeftElement>
 
-                                        <Input value={value} onChange={(e) => onChange(e.target.value.trim().toLowerCase())} size='lg' bg='#e0e0e0' border='1px solid #000' placeholder='username' />
+                                        <Input value={value} onChange={(e) => onChange(e.target.value.trim().toLowerCase())} size='lg' bg='#e0e0e0' border='1px solid #000' placeholder='usuário' />
                                     </InputGroup>
                                     {errors.username && <Text color='red' fontSize={14} pt={1} pl={2}>{errors.username.message}</Text>}
                                 </Flex>
@@ -100,7 +99,7 @@ export default function Login() {
                                         </InputLeftElement>
 
                                         <Input value={value} onChange={(e) => onChange(e.target.value.trim())} type={show ? 'text' : 'password'} size='lg' bg='#e0e0e0'
-                                            border='1px solid #000' placeholder='password' />
+                                            border='1px solid #000' placeholder='**********' />
 
                                         <InputRightElement onClick={(e) => { e.preventDefault(); setShow(!show) }} cursor='pointer' _hover={{ color: 'blue.600' }}>
                                             {show ? <IoMdEye size={22} /> : <RiEyeCloseLine />}

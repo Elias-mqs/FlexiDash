@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 const api = axios.create({
     baseURL: '/api/'
@@ -14,11 +15,9 @@ export { api };
 // Interceptores de requisição
 api.interceptors.request.use(
     (config) => {
-        // Modifique a requisição antes de enviar
-        // const token = localStorage.getItem('token'); // Exemplo de obtenção de token
-        // if (token) {
-        //   config.headers.Authorization = `Bearer ${token}`;
-        // }
+        const token = Cookies.get('ssnAuth');
+        const authRequestToken = token ? `Bearer ${token}` : '';
+        config.headers['Authorization'] = authRequestToken;
         return config;
     },
     (error) => {
@@ -49,12 +48,12 @@ api.interceptors.response.use(
         // FALTA INSERIR OS OUTROS POSSIVEIS ERROS E SUAS DESCRIÇÕES
 
         // NÃO AUTORIZADO
-        if (error.response?.status === 401) {
-            //remover o token aqui e redirecionar para a tela de login
-            return Promise.reject(error);
-        }
+        // if (error.response?.status === 401) {
+        //     //remover o token aqui e redirecionar para a tela de login
 
-        return Promise.reject({ data: error.response.data, status: error.response.status});
+        //     return Promise.reject(error);
+        // }
+        return Promise.reject({ data: error.response.data, status: error.response.status });
     }
 );
 

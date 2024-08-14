@@ -3,8 +3,6 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { findUser } from "@/utils/database/repositories/sysUsers";
 import { remapUsers } from "@/utils/remappers";
-import { strict } from "assert";
-
 
 export async function POST(request: Request) {
 
@@ -18,28 +16,35 @@ export async function POST(request: Request) {
     const userForm = remapUsers.srcUser({ username, pass });
 
     try {
-        const userDb = await findUser({ usr_username: userForm.usr_username })
+        const userDb = await findUser({ usr_username: userForm.usr_username });
+
+        if (userDb.length < 1) {
+            return NextResponse.json({ message: 'Usuário inválido' }, { status: 401 });
+        }
+
         const dataUser = userDb[0];
 
-        const verifyPass = await PassCrypt.verifyPassword(userForm.usr_pass, dataUser.usr_pass)
+        const verifyPass = await PassCrypt.verifyPassword(userForm.usr_pass, dataUser.usr_pass);
 
-        if (dataUser?.usr_username !== userForm.usr_username || verifyPass !== true) {
-            return NextResponse.json({ message: 'Usuário ou senha inválidos' }, { status: 401 })
+        if (verifyPass !== true) {
+            return NextResponse.json({ message: 'Senha inválida' }, { status: 401 });
+
         } else {
             const accessToken = JwtService.signIn({ usrId: dataUser.usr_id });
+
             if (accessToken === 'JWT_SECRET_NOT_FOUND') {
-                return NextResponse.json({ message: 'Erro interno contate a TI' }, { status: 500 })
+                return NextResponse.json({ message: 'Erro interno contate a TI' }, { status: 500 });
             }
 
             cookies().set('ssnAuth', accessToken, {
                 httpOnly: true,
-                secure: true,
+                // secure: true, DEIXAR TRUE SOMENTE QUANDO COLOCAR NO AR. O SECURE É PARA LIBERAR O COOKIE QUANDO O SITE TIVER SSL
                 maxAge: 60 * 60 * 24,
                 sameSite: 'strict',
                 path: '/'
             })
 
-            return NextResponse.json({ message: 'Usuário autorizado' }, { status: 200 })
+            return NextResponse.json({ message: 'Usuário autorizado' }, { status: 200 });
         }
 
     } catch (error) {
@@ -47,3 +52,4 @@ export async function POST(request: Request) {
         return NextResponse.json({ message: 'Erro interno, contate a TI' }, { status: 500 });
     }
 }
+ 

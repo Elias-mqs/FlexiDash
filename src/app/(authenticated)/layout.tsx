@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ProvidersChakra } from "@/providers/chakra";
 import { Container, Flex } from '@chakra-ui/react';
-import { Footer, Header, Sidebar } from "@/components";
+import { Footer, Header, Sidebar } from "@/components/ui";
 import { Roboto } from 'next/font/google';
 
 export const metadata: Metadata = {
@@ -25,7 +25,7 @@ export default function RootLayout({
                 <ProvidersChakra>
                     <Container bg='gray.100' maxW='container.xl' px={4} >
                         <Flex>
-                            {/* <Sidebar /> */}
+                            <Sidebar />
                             <Flex w='100%' direction='column'>
                                 <Header />
                                 {/* o H do flex abaixo é 100%, eu alterei pra 80vh para compensar a saida provisória do Sidebar */}

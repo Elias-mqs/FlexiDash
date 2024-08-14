@@ -6,7 +6,7 @@ import { Button, Flex, Grid, Input, Select, Text, useMediaQuery, useToast } from
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from 'zod';
-import { Armazens } from "./armazens";
+import { Armazens } from "@/components/ui/Inventory/DataLists";
 import { api } from "@/services";
 
 interface FormProps {
