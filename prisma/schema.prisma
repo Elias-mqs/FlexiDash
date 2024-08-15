@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model inv_document {
+  id             Int           @id @default(autoincrement())
+  documento      Int
+  equipe_id      Int
+  status         String        @db.VarChar(15)
+  armazem        String        @db.VarChar(5)
+  usr_id_ini     Int
+  dt_ini         String        @db.VarChar(100)
+  usr_id_fim     Int?
+  dt_fim         String?       @db.VarChar(100)
+  inv_equipe     inv_equipe    @relation(fields: [equipe_id], references: [id], onUpdate: Restrict, map: "inv_document_ibfk_1")
+  sis_usr_id_ini sis_usuarios  @relation("inv_doc_usr_ini", fields: [usr_id_ini], references: [id], onUpdate: Restrict, map: "inv_document_ibfk_2")
+  sis_usr_id_fim sis_usuarios? @relation("inv_doc_usr_fim", fields: [usr_id_fim], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "inv_document_ibfk_3")
+
+  @@index([equipe_id], map: "equipe_id")
+  @@index([usr_id_fim], map: "usr_id_fim")
+  @@index([usr_id_ini], map: "usr_id_ini")
+}
+
+model inv_equipe {
+  id           Int            @id @default(autoincrement())
+  usr_id       Int
+  inv_document inv_document[]
+  sis_usuarios sis_usuarios   @relation(fields: [usr_id], references: [id], onUpdate: Restrict, map: "inv_equipe_ibfk_1")
+
+  @@index([usr_id], map: "usr_id")
+}
+
+model sis_acess_modulo {
+  id               Int                @id @default(autoincrement())
+  usr_id           Int
+  mod_id           Int
+  sis_usuarios     sis_usuarios       @relation(fields: [usr_id], references: [id], onUpdate: Restrict, map: "sis_acess_modulo_ibfk_1")
+  sis_modulos      sis_modulos        @relation(fields: [mod_id], references: [id], onUpdate: Restrict, map: "sis_acess_modulo_ibfk_2")
+  sis_acess_rotina sis_acess_rotina[]
+
+  @@index([mod_id], map: "mod_id")
+  @@index([usr_id], map: "usr_id")
+}
+
+model sis_acess_recurso {
+  id                 Int                @id @default(autoincrement())
+  acess_rot_id       Int
+  rec_rotina_id      Int
+  sis_acess_rotina   sis_acess_rotina   @relation(fields: [acess_rot_id], references: [id], onUpdate: Restrict, map: "sis_acess_recurso_ibfk_1")
+  sis_recurso_rotina sis_recurso_rotina @relation(fields: [rec_rotina_id], references: [id], onUpdate: Restrict, map: "sis_acess_recurso_ibfk_2")
+
+  @@index([acess_rot_id], map: "acess_rot_id")
+  @@index([rec_rotina_id], map: "rec_rotina_id")
+}
+
+model sis_acess_rotina {
+  id                Int                 @id @default(autoincrement())
+  acess_mod_id      Int
+  rotina_id         Int
+  sis_acess_recurso sis_acess_recurso[]
+  sis_acess_modulo  sis_acess_modulo    @relation(fields: [acess_mod_id], references: [id], onUpdate: Restrict, map: "sis_acess_rotina_ibfk_1")
+  sis_rotinas       sis_rotinas         @relation(fields: [rotina_id], references: [id], onUpdate: Restrict, map: "sis_acess_rotina_ibfk_2")
+
+  @@index([acess_mod_id], map: "acess_mod_id")
+  @@index([rotina_id], map: "rotina_id")
+}
+
+model sis_modulos {
+  id               Int                @id @default(autoincrement())
+  nome             String             @db.VarChar(100)
+  sis_acess_modulo sis_acess_modulo[]
+  sis_rotinas      sis_rotinas[]
+}
+
+model sis_recurso_rotina {
+  id                Int                 @id @default(autoincrement())
+  rotina_id         Int
+  nome              String              @db.VarChar(100)
+  sis_acess_recurso sis_acess_recurso[]
+  sis_rotinas       sis_rotinas         @relation(fields: [rotina_id], references: [id], onUpdate: Restrict, map: "sis_recurso_rotina_ibfk_1")
+
+  @@index([rotina_id], map: "rotina_id")
+}
+
+model sis_rotinas {
+  id                 Int                  @id @default(autoincrement())
+  mod_id             Int
+  nome               String               @db.VarChar(100)
+  sis_acess_rotina   sis_acess_rotina[]
+  sis_recurso_rotina sis_recurso_rotina[]
+  sis_modulos        sis_modulos          @relation(fields: [mod_id], references: [id], onUpdate: Restrict, map: "sis_rotinas_ibfk_1")
+
+  @@index([mod_id], map: "mod_id")
+}
+
+model sis_usuarios {
+  id               Int                @id @default(autoincrement())
+  nome             String             @db.VarChar(100)
+  usuario          String             @db.VarChar(50)
+  email            String             @db.VarChar(150)
+  pass             String             @db.VarChar(255)
+  ativo            Boolean            @default(true)
+  inv_doc_usr_ini  inv_document[]     @relation("inv_doc_usr_ini")
+  inv_doc_usr_fim  inv_document[]     @relation("inv_doc_usr_fim")
+  inv_equipe       inv_equipe[]
+  sis_acess_modulo sis_acess_modulo[]
+}
