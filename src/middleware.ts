@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+
 import type { NextRequest } from 'next/server'
 
 interface AuthProps {
@@ -30,10 +31,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/accounts/login', request.url))
     }
 
-    if (
-      request.nextUrl.pathname === '/accounts/login' ||
-      request.nextUrl.pathname === '/accounts/recoveryPass'
-    ) {
+    if (request.nextUrl.pathname === '/accounts/login' || request.nextUrl.pathname === '/accounts/recoveryPass') {
       return NextResponse.redirect(new URL('/', request.url))
     }
   } catch (error) {

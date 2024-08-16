@@ -1,8 +1,9 @@
-import { FormsCrypt, JwtService, PassCrypt } from '@/services'
-import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { remapUsers } from '@/utils/remappers'
+import { NextResponse } from 'next/server'
+
+import { FormsCrypt, JwtService, PassCrypt } from '@/services'
 import { db } from '@/utils/database'
+import { remapUsers } from '@/utils/remappers'
 
 export async function POST(request: Request) {
   const formData = await request.json()
@@ -35,7 +36,7 @@ export async function POST(request: Request) {
       }
 
       cookies().set('ssnAuth', accessToken, {
-        httpOnly: true,
+        // httpOnly: true, // POR ENQUANTO NÃO ENCONTREI UMA FORMA DE DEIXAR ESSA FUNÇÃO ATIVA PARA AUMENTAR A SEGURANÇA
         // secure: true, DEIXAR TRUE SOMENTE QUANDO COLOCAR NO AR. O SECURE É PARA LIBERAR O COOKIE QUANDO O SITE TIVER SSL
         maxAge: 60 * 60 * 24,
         sameSite: 'strict',

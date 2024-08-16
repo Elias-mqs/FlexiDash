@@ -59,13 +59,7 @@ const createUser = async (dataUser: {
   ativo: boolean
 }) => {
   await prisma.sis_usuarios.create({
-    data: {
-      nome: dataUser.name,
-      email: dataUser.email,
-      usuario: dataUser.username,
-      pass: dataUser.pass,
-      ativo: true,
-    },
+    data: { nome: dataUser.name, email: dataUser.email, usuario: dataUser.username, pass: dataUser.pass, ativo: true },
   })
 }
 

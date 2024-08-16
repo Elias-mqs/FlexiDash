@@ -1,5 +1,7 @@
 'use client'
 
+import { useState } from 'react'
+
 import {
   Button,
   Flex,
@@ -11,15 +13,16 @@ import {
   useToast,
   VStack,
 } from '@chakra-ui/react'
-import { IoMdEye } from 'react-icons/io'
-import { FaUser, FaLock } from 'react-icons/fa'
-import { RiEyeCloseLine } from 'react-icons/ri'
 import Image from 'next/image'
-import { useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
-import { resolverLogin } from './schemas'
-import { FormsCrypt, api } from '@/services'
 import { useRouter } from 'next/navigation'
+import { Controller, useForm } from 'react-hook-form'
+import { FaUser, FaLock } from 'react-icons/fa'
+import { IoMdEye } from 'react-icons/io'
+import { RiEyeCloseLine } from 'react-icons/ri'
+
+import { FormsCrypt, api } from '@/services'
+
+import { resolverLogin } from './schemas'
 
 export default function Login() {
   const toast = useToast()

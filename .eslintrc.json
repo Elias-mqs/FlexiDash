@@ -4,3 +4,39 @@
     "@rocketseat/eslint-config/next"
   ]
 }
+
+
+
+
+
+
+
+
+
+/////////////// ESSA É A CONFIGURAÇÃO PARA ORGANIZAR AS IMPORTAÇÕES (NÃO CONSEGUI FAZER FUNCIONAR)
+// "plugins": [
+//   "eslint-plugin-import-helpers"
+// ],
+// "rules": {
+//   "import-helpers/order-imports": [
+//     "warn",
+//     { // example configuration
+//       "newlinesBetween": "always",
+//       "groups": [
+//         ["/^next/","/^react/", "/@next/"],
+//         "module",
+//         "/^@shared/",
+//         "absolute",
+//         [
+//           "parent",
+//           "sibling",
+//           "index"
+//         ],
+//       ],
+//       "alphabetize": {
+//         "order": "asc",
+//         "ignoreCase": true
+//       }
+//     }
+//   ]
+// }
