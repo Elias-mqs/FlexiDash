@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 
 import { ListModules } from '@/components/ui/System'
-import { api } from '@/services'
+import { api, FormsCrypt } from '@/services'
 
 export default function Modules() {
   const router = useRouter()
@@ -13,6 +13,8 @@ export default function Modules() {
   async function chamarApi() {
     const res = await api.get('/system/listModules')
     console.log(res)
+    const data = FormsCrypt.verifyData(res.data)
+    console.log(data)
   }
 
   return (

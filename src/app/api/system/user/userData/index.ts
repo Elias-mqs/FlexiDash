@@ -1,16 +1,7 @@
 import { JwtService } from '@/services'
 import { db } from '@/utils/database'
 
-interface DataUserProps {
-  id: number
-  nome: string
-  usuario: string
-  email: string
-  pass: string
-  ativo: boolean
-}
-
-export async function srcUser(token: string): Promise<DataUserProps | { message: string; status: number }> {
+export async function srcUser(token: string) {
   try {
     const decoded = JwtService.verify(token)
 
@@ -24,12 +15,12 @@ export async function srcUser(token: string): Promise<DataUserProps | { message:
     const dataUser = await db.users.findUserById(decoded.usrId)
 
     if (dataUser === null) {
-      throw new Error('Erro ao buscar usuário')
+      return null
     }
 
     return dataUser
   } catch (error) {
-    console.log(error)
-    return { message: 'Erro interno', status: 500 }
+    console.error('Error in srcUser:', error)
+    throw error
   }
 }

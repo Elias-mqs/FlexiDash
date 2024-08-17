@@ -2,13 +2,6 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-const findUserById = async (usrId: number) => {
-  const user = await prisma.sis_usuarios.findUnique({
-    where: { id: usrId },
-  })
-  return user
-}
-
 interface UserProps {
   usrId: number
   name: string
@@ -16,6 +9,17 @@ interface UserProps {
   username: string
   pass: string
   ativo: boolean
+}
+
+const findUserById = async (usrId: number) => {
+  const user = await prisma.sis_usuarios.findUnique({
+    where: { id: usrId },
+  })
+  if (!user) {
+    return null
+  } else {
+    return user as UserProps
+  }
 }
 
 const findFirstUser = async (criteria: {

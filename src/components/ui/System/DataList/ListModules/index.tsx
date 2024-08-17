@@ -1,15 +1,42 @@
-import { Suspense, useEffect } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 
-import { Select } from '@chakra-ui/react'
+import { Select, useToast } from '@chakra-ui/react'
 
-import { api } from '@/services'
+import { api, FormsCrypt } from '@/services'
+
+interface ListModulesProps {
+  mod_id: number
+  sis_modulos: {
+    nome: string
+  }
+}
 
 export function ListModules() {
-  const dataUser = 'testes'
+  const toast = useToast()
+
+  const [listMod, setListMod] = useState<ListModulesProps[]>([])
 
   useEffect(() => {
-    const res = api.post('/system/listModules', dataUser)
-    console.log(res)
+    const fetchModules = async () => {
+      try {
+        const res = await api.get('/system/listModules')
+        console.log(res)
+        const data: ListModulesProps[] = FormsCrypt.verifyData(res.data)
+        console.log(data)
+        setListMod(data)
+      } catch (error) {
+        console.log(error)
+        return toast({
+          title: 'Erro interno',
+          description: 'Contate a TI',
+          status: 'error',
+          position: 'top',
+          duration: 3000,
+          isClosable: true,
+        })
+      }
+    }
+    fetchModules()
   }, [])
 
   return (
@@ -22,11 +49,11 @@ export function ListModules() {
         border="2px solid #c0c0c0"
         required
       >
-        <option style={{ fontWeight: 500, backgroundColor: '#f5f5f5' }}>Modulo 1</option>
-        <option style={{ fontWeight: 500, backgroundColor: '#f5f5f5' }}>Modulo 2</option>
-        <option style={{ fontWeight: 500, backgroundColor: '#f5f5f5' }}>Modulo 3</option>
-        <option style={{ fontWeight: 500, backgroundColor: '#f5f5f5' }}>Modulo 4</option>
-        <option style={{ fontWeight: 500, backgroundColor: '#f5f5f5' }}>Modulo 5</option>
+        {listMod.map((modules, index) => (
+          <option value={modules.mod_id} key={index} style={{ fontWeight: 500, backgroundColor: '#f5f5f5' }}>
+            {modules.sis_modulos.nome}
+          </option>
+        ))}
       </Select>
     </Suspense>
   )
