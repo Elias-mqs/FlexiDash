@@ -18,7 +18,7 @@ const findUserById = async (usrId: number) => {
   if (!user) {
     return null
   } else {
-    return user as UserProps
+    return user
   }
 }
 
@@ -49,7 +49,7 @@ const findFirstUser = async (criteria: {
       ativo: dataUser.ativo,
     }
 
-    return user
+    return user as UserProps
   }
 
   return null

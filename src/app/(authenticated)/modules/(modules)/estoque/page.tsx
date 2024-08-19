@@ -1,12 +1,18 @@
 'use client'
 
-import { ScreenCard } from '@/components/ui/Inventory'
 import { Flex, Grid } from '@chakra-ui/react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { BsClipboardPlus } from 'react-icons/bs'
 
-export default function HomeInventory() {
+import { ScreenCard } from '@/components/ui/Inventory'
+
+export default function Estoque() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const search = searchParams.get('routines')
+
+  console.log(search)
 
   const cardRoute = {
     StartInventory: '/modules/inventario/iniciar',
@@ -27,6 +33,8 @@ export default function HomeInventory() {
         <ScreenCard icon={BsClipboardPlus} />
         <ScreenCard icon={BsClipboardPlus} />
         <ScreenCard icon={BsClipboardPlus} />
+
+        <Flex>Teste</Flex>
       </Grid>
     </Flex>
   )

@@ -1,32 +1,29 @@
-import CryptoJS from "crypto-js";
+import CryptoJS from 'crypto-js'
 
-
-
-///////// CRIPTOGRAFAR FORMULARIOS /////////
+/// ////// CRIPTOGRAFAR FORMULARIOS /////////
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function dataCrypt(data: any) {
-    const SECRETKEY = process.env.NEXT_PUBLIC_ROUTECRYPT
-    return { data: CryptoJS.AES?.encrypt(JSON.stringify(data), SECRETKEY!).toString() }
+  const SECRETKEY = process.env.NEXT_PUBLIC_ROUTECRYPT
+  return { data: CryptoJS.AES?.encrypt(JSON.stringify(data), SECRETKEY!).toString() }
 }
 
-///////// DESCRIPTOGRAFAR FORMULARIOS /////////
+/// ////// DESCRIPTOGRAFAR FORMULARIOS /////////
 function verifyData({ data }: { data: string }) {
+  const SECRETKEY = process.env.NEXT_PUBLIC_ROUTECRYPT
 
-    const SECRETKEY = process.env.NEXT_PUBLIC_ROUTECRYPT
+  const bytes = CryptoJS.AES.decrypt(data, SECRETKEY!)
 
-    let bytes = CryptoJS.AES.decrypt(data, SECRETKEY!);
+  const decryptedString = bytes.toString(CryptoJS.enc.Utf8)
 
-    const decryptedString = bytes.toString(CryptoJS.enc.Utf8);
-
-    try {
-        return JSON.parse(decryptedString);
-    } catch (error) {
-        console.error('Erro ao parsear JSON:', error);
-        return null;
-    }
+  try {
+    return JSON.parse(decryptedString)
+  } catch (error) {
+    console.error('Erro ao parsear JSON:', error)
+    return null
+  }
 }
-
 
 export const FormsCrypt = {
-    dataCrypt,
-    verifyData
-};
+  dataCrypt,
+  verifyData,
+}

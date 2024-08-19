@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 
-import { srcUser } from '@/app/api/system/user/userData'
 import { FormsCrypt } from '@/services'
-import { dbSystem } from '@/utils/database/system'
+
+import { srcUser } from '../userData'
 
 export async function GET(request: Request) {
   const token = request.headers.get('Authorization')?.replace('Bearer ', '')
@@ -17,17 +17,15 @@ export async function GET(request: Request) {
     if (!dataUser) {
       return NextResponse.json({ message: 'Erro interno, contate a TI' }, { status: 500 })
     }
-    const modulesList = await dbSystem.accessMod.findAcsMod({ usrId: dataUser.id })
 
-    if (modulesList === null || modulesList.length < 1) {
-      return NextResponse.json({ message: 'Erro interno, contate a TI' }, { status: 500 })
-    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { pass, ...dataUserRemap } = dataUser
 
-    const data = FormsCrypt.dataCrypt(modulesList)
+    const data = FormsCrypt.dataCrypt(dataUserRemap)
 
     return NextResponse.json(data, { status: 200 })
   } catch (error) {
-    console.error('Error listModules', error)
+    console.error('Error userDataRoutes', error)
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 })
   }
 }

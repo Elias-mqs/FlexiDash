@@ -2,18 +2,34 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-const findAcsRoutine = async (acsRoutine: { modId: number; routineId: number }): Promise<boolean | number> => {
-  const access = await prisma.sis_acess_rotina.findFirst({
+interface AcsRoutineProps {
+  id: number
+  sis_rotinas: {
+    id: number
+    nome: string
+  }
+}
+
+const findAcsRoutine = async (acsRoutine: { acsModId: number }): Promise<AcsRoutineProps[] | null> => {
+  const access: AcsRoutineProps[] = await prisma.sis_acess_rotina.findMany({
+    select: {
+      id: true,
+      sis_rotinas: {
+        select: {
+          id: true,
+          nome: true,
+        },
+      },
+    },
     where: {
-      acess_mod_id: acsRoutine.modId,
-      rotina_id: acsRoutine.routineId,
+      acess_mod_id: acsRoutine.acsModId,
     },
   })
 
   if (access === null) {
-    return false
+    return null
   } else {
-    return access.id
+    return access
   }
 }
 

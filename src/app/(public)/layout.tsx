@@ -1,5 +1,6 @@
-import { ProvidersChakra } from '@/providers/chakra'
 import { Roboto } from 'next/font/google'
+
+import { ProvidersChakra } from '@/providers/chakra'
 
 export const metadata = {
   title: '',

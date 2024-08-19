@@ -68,8 +68,6 @@ export default function Login() {
     }
   }
 
-  console.log('renderizando')
-
   return (
     <Flex justify="center" bg="#d0d0d0" overflow="auto">
       <VStack h="100vh" w="container.lg">
