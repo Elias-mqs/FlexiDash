@@ -11,16 +11,7 @@ const findModuleById = async (modId: number) => {
   const sisModule = await prisma.sis_modulos.findUnique({
     where: { id: modId },
   })
-  return sisModule
-}
-
-const findManyModules = async (modId: number): Promise<ModuleProps[]> => {
-  const manyMod = await prisma.sis_modulos.findMany({
-    where: {
-      id: modId,
-    },
-  })
-  return manyMod
+  return sisModule as ModuleProps
 }
 
 const createModule = async (dataMod: { name: string }) => {
@@ -34,5 +25,4 @@ const createModule = async (dataMod: { name: string }) => {
 export const modules = {
   findModuleById,
   createModule,
-  findManyModules,
 }

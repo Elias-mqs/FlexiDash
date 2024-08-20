@@ -1,3 +1,5 @@
+import { Suspense } from 'react'
+
 import { Container } from '@chakra-ui/react'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { Roboto } from 'next/font/google'
@@ -5,6 +7,8 @@ import { Roboto } from 'next/font/google'
 import UserDataPrivider from '@/context/User/UserDataContext'
 import { ProvidersChakra } from '@/providers/chakra'
 import { queryClient } from '@/services/queryClient'
+
+import Loading from './loading'
 
 import type { Metadata } from 'next'
 
@@ -23,7 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <QueryClientProvider client={queryClient}>
             <UserDataPrivider>
               <Container maxW="container.xl" px={4}>
-                {children}
+                <Suspense fallback={<Loading />}>{children}</Suspense>
               </Container>
             </UserDataPrivider>
           </QueryClientProvider>

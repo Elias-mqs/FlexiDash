@@ -2,19 +2,19 @@
 
 import { Button, Flex, Text } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import Cookies from 'js-cookie'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 import { ListModules } from '@/components/ui/System'
-import { useUserData } from '@/context/User/UserDataContext'
-import { api, FormsCrypt } from '@/services'
+import { FormsCrypt } from '@/services'
 
-interface AcsModuleProps {
-  acsModId: number
+interface DataModuleProps {
   mod_id: number
   module: string
+  acsModId: number
 }
 
 const moduleSchema = z.object({
@@ -24,25 +24,17 @@ const moduleSchema = z.object({
 export default function Modules() {
   const router = useRouter()
 
-  const dataUser = useUserData()
-
   const { handleSubmit, control } = useForm({
     resolver: zodResolver(moduleSchema),
     defaultValues: { module: '' },
   })
 
-  const selectModule = async (module: { module: string }) => {
-    const acsModule: AcsModuleProps = JSON.parse(module.module)
-    console.log(acsModule)
-    const secureForm = FormsCrypt.dataCrypt({ ...acsModule, usrId: dataUser?.id })
-    try {
-      const {
-        data: { data },
-      } = await api.post('/system/selectModule', secureForm)
-      router.push(`/modules/${acsModule.module.toLowerCase()}?routines=${data}`)
-    } catch (error) {
-      console.error(error)
-    }
+  const selectModule = async ({ module }: { module: string }) => {
+    const dataModule: DataModuleProps = JSON.parse(module)
+
+    const dataModCrypt = FormsCrypt.dataCrypt({ data: { modId: dataModule.mod_id, acsModId: dataModule.acsModId } })
+    Cookies.set('acsModData', dataModCrypt.data)
+    router.push(`/modules/${dataModule.module.toLocaleLowerCase()}`)
   }
 
   return (

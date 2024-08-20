@@ -1,7 +1,3 @@
-import { ScreenCard } from "./ScreenCard";
-import { ShelfItems } from "./ShelfItems";
+import { ShelfItems } from './ShelfItems'
 
-export {
-    ScreenCard,
-    ShelfItems
-}
+export { ShelfItems }

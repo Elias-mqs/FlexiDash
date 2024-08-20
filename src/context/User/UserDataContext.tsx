@@ -3,6 +3,7 @@
 import { createContext, useContext } from 'react'
 
 import { useQuery } from '@tanstack/react-query'
+import { useRouter } from 'next/navigation'
 
 import { api, FormsCrypt } from '@/services'
 
@@ -14,10 +15,12 @@ interface DataUserProps {
   ativo: boolean
 }
 
-const UserDataContext = createContext<DataUserProps | undefined>(undefined)
+const UserDataContext = createContext<DataUserProps>({} as DataUserProps)
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function UserDataPrivider({ children }: any) {
+  const router = useRouter()
+
   const { data } = useQuery({
     queryKey: ['dataUser'],
     queryFn: async (): Promise<DataUserProps | null | undefined> => {
@@ -29,8 +32,9 @@ export default function UserDataPrivider({ children }: any) {
         } else {
           return dataUser as DataUserProps
         }
-      } catch (error) {
-        console.log(error)
+      } catch (error: unknown) {
+        console.error(error)
+        router.push('/accounts/login')
       }
     },
     enabled: true,

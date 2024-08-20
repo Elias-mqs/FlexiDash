@@ -1,40 +1,72 @@
 'use client'
 
-import { Flex, Grid } from '@chakra-ui/react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { BsClipboardPlus } from 'react-icons/bs'
+import { Flex, Grid, useToast } from '@chakra-ui/react'
+import { useQuery } from '@tanstack/react-query'
+import Cookies from 'js-cookie'
+import { FaBox, FaClipboardList, FaArchive } from 'react-icons/fa'
+import { IconType } from 'react-icons/lib'
 
-import { ScreenCard } from '@/components/ui/Inventory'
+import { ScreenCard } from '@/components/ui'
+import { useUserData } from '@/context/User/UserDataContext'
+import { api, FormsCrypt } from '@/services'
+
+interface ListRoutineProps {
+  id: number
+  sis_rotinas: {
+    id: number
+    nome: string
+  }
+}
+
+const routineDetails: Record<string, { icon: IconType; description: string }> = {
+  Inventário: { icon: FaClipboardList, description: 'Realize e controle inventários' },
+  Estoque: { icon: FaBox, description: 'Gerencie o inventário de produtos' }, /// EXEMPLO DE OUTRAS ROTINAS
+  Arquivamento: { icon: FaArchive, description: 'Organize e arquive documentos' }, /// EXEMPLO DE OUTRAS ROTINAS
+}
 
 export default function Estoque() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const dataUser = useUserData()
+  const toast = useToast()
 
-  const search = searchParams.get('routines')
+  async function fetchListRoutine() {
+    const dataAcsMod = Cookies.get('acsModData')
 
-  console.log(search)
+    try {
+      const { data } = await api.post('/modules/listRoutines', { data: dataAcsMod, usrId: dataUser.id })
 
-  const cardRoute = {
-    StartInventory: '/modules/inventario/iniciar',
+      const dataList = FormsCrypt.verifyData(data)
+
+      return dataList as ListRoutineProps[]
+    } catch (error: unknown) {
+      toast({
+        title: 'Erro interno',
+        description: 'Contate a TI',
+        status: 'error',
+        position: 'top',
+        duration: 3000,
+        isClosable: true,
+      })
+      return []
+    }
   }
+
+  const { data: routineList } = useQuery({
+    queryKey: ['acsModData'],
+    queryFn: fetchListRoutine,
+    enabled: true,
+    refetchOnWindowFocus: false,
+  })
+
+  if (!routineList) return
 
   return (
     <Flex w="100%" direction="column" p={4} overflow="auto">
       <Grid templateColumns={{ base: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }} gap={8}>
-        <ScreenCard
-          icon={BsClipboardPlus}
-          title="Novo inventário"
-          descCard="Iniciar um novo inventário"
-          onClick={() => router.push(cardRoute.StartInventory)}
-        />
-        <ScreenCard icon={BsClipboardPlus} />
-        <ScreenCard icon={BsClipboardPlus} />
-        <ScreenCard icon={BsClipboardPlus} />
-        <ScreenCard icon={BsClipboardPlus} />
-        <ScreenCard icon={BsClipboardPlus} />
-        <ScreenCard icon={BsClipboardPlus} />
-
-        <Flex>Teste</Flex>
+        {routineList?.map((routine) => {
+          const routineName = routine?.sis_rotinas?.nome
+          const { icon, description } = routineDetails[routineName] || {}
+          return <ScreenCard key={routine.id} icon={icon} title={routineName} description={description} />
+        })}
       </Grid>
     </Flex>
   )

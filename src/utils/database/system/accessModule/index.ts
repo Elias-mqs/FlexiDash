@@ -14,10 +14,10 @@ const findAcsMod = async (acsModId: { usrId: number }): Promise<AccessProps[] | 
   const accessMod = await prisma.sis_acess_modulo.findMany({
     select: {
       id: true,
-      mod_id: true, // Seleciona o ID do módulo
+      mod_id: true,
       sis_modulos: {
         select: {
-          nome: true, // Seleciona o nome do módulo
+          nome: true,
         },
       },
     },

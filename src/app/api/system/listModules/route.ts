@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
 import { srcUser } from '@/app/api/system/user/userData'
@@ -21,6 +22,12 @@ export async function GET(request: Request) {
 
     if (modulesList === null || modulesList.length < 1) {
       return NextResponse.json({ message: 'Erro interno, contate a TI' }, { status: 500 })
+    }
+
+    const hasAcsModId = cookies().has('acsModData')
+
+    if (hasAcsModId) {
+      cookies().delete('acsModData')
     }
 
     const data = FormsCrypt.dataCrypt(modulesList)
