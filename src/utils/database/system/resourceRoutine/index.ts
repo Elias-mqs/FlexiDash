@@ -11,11 +11,12 @@ const findRscRoutine = async (routineId: number) => {
   return rscRoutine
 }
 
-const createRscRoutine = async (data: { name: string; rotinaId: number }) => {
+const createRscRoutine = async (data: { name: string; rotinaId: number; slug: string }) => {
   await prisma.sis_recurso_rotina.create({
     data: {
       nome: data.name,
       rotina_id: data.rotinaId,
+      slug: data.slug,
     },
   })
 }

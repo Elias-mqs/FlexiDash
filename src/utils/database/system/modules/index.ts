@@ -14,10 +14,11 @@ const findModuleById = async (modId: number) => {
   return sisModule as ModuleProps
 }
 
-const createModule = async (dataMod: { name: string }) => {
+const createModule = async (dataMod: { name: string, slug: string }) => {
   await prisma.sis_modulos.create({
     data: {
       nome: dataMod.name,
+      slug: dataMod.slug
     },
   })
 }

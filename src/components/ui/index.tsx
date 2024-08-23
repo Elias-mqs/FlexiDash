@@ -1,6 +1,7 @@
 import { Footer } from './Footer'
 import { Header } from './Header'
-import { ScreenCard } from './ScreenCard'
+import { ScreenCardResource } from './ScreenCardResource'
+import { ScreenCardRoutine } from './ScreenCardRoutine'
 import { Sidebar } from './Sidebar'
 
-export { Header, Sidebar, Footer, ScreenCard }
+export { Header, Sidebar, Footer, ScreenCardRoutine, ScreenCardResource }

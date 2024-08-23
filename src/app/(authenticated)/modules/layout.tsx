@@ -1,28 +1,34 @@
-import { Container, Flex } from '@chakra-ui/react'
+import { Suspense } from 'react'
 
-import { Footer, Header, Sidebar } from '@/components/ui'
+import { Container } from '@chakra-ui/react'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { Roboto } from 'next/font/google'
+
+import UserDataPrivider from '@/context/User/UserDataContext'
+import { ProvidersChakra } from '@/providers/chakra'
+import { queryClient } from '@/services/queryClient'
+
+import Loading from './loading'
 
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Estoque - H2L',
-  description: 'Aplicação para recursos do setor de estoque da H2L',
+  title: 'Seleção de Módulo - H2L',
+  description: 'Página para selecionar o módulo desejado.',
 }
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+const robotoFont = Roboto({ weight: ['100', '400', '500', '700'], subsets: ['latin'] })
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <Container bg="gray.100" maxW="container.xl" px={4}>
-      <Flex>
-        <Sidebar />
-        <Flex w="100%" direction="column">
-          <Header />
-          {/* o H do flex abaixo é 100%, eu alterei pra 80vh para compensar a saida provisória do Sidebar */}
-          <Flex h={{ base: '100vh', sm: 'calc(100vh - 135px)' }} mt={4} ml={4} bg="#fff" borderRadius="1rem" p={4}>
-            {children}
-          </Flex>
-          <Footer />
-        </Flex>
-      </Flex>
-    </Container>
+    <ProvidersChakra>
+      <QueryClientProvider client={queryClient}>
+        <UserDataPrivider>
+          <Container maxW="container.2xl" px={4} className={robotoFont.className}>
+            <Suspense fallback={<Loading />}>{children}</Suspense>
+          </Container>
+        </UserDataPrivider>
+      </QueryClientProvider>
+    </ProvidersChakra>
   )
 }

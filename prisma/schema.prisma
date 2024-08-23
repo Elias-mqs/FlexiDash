@@ -73,6 +73,7 @@ model sis_acess_rotina {
 model sis_modulos {
   id               Int                @id @default(autoincrement())
   nome             String             @db.VarChar(100)
+  slug             String             @db.VarChar(100)
   sis_acess_modulo sis_acess_modulo[]
   sis_rotinas      sis_rotinas[]
 }
@@ -81,6 +82,7 @@ model sis_recurso_rotina {
   id                Int                 @id @default(autoincrement())
   rotina_id         Int
   nome              String              @db.VarChar(100)
+  slug              String              @db.VarChar(100)
   sis_acess_recurso sis_acess_recurso[]
   sis_rotinas       sis_rotinas         @relation(fields: [rotina_id], references: [id], onUpdate: Restrict, map: "sis_recurso_rotina_ibfk_1")
 
@@ -91,6 +93,7 @@ model sis_rotinas {
   id                 Int                  @id @default(autoincrement())
   mod_id             Int
   nome               String               @db.VarChar(100)
+  slug               String               @db.VarChar(100)
   sis_acess_rotina   sis_acess_rotina[]
   sis_recurso_rotina sis_recurso_rotina[]
   sis_modulos        sis_modulos          @relation(fields: [mod_id], references: [id], onUpdate: Restrict, map: "sis_rotinas_ibfk_1")

@@ -8,6 +8,7 @@ interface ListModulesProps {
   mod_id: number
   sis_modulos?: {
     nome?: string
+    slug?: string
   }
 }
 
@@ -46,7 +47,7 @@ export function ListModules({ field }: any) {
   if (!listMod) return
 
   const coerceString = (data: ListModulesProps) => {
-    const dataList = { ...data, module: data.sis_modulos?.nome, acsModId: data.id }
+    const dataList = { ...data, moduleName: data.sis_modulos?.nome, acsModId: data.id, slug: data.sis_modulos?.slug }
     const {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       id,

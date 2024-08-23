@@ -6,7 +6,9 @@ interface UserProps {
   ativo?: boolean
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function srcUser(user: UserProps): Record<string, any> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const result: Record<string, any> = {}
 
   if (user.name !== undefined) {

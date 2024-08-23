@@ -54,7 +54,7 @@ export default function Login() {
         isClosable: true,
       })
 
-      router.push('/')
+      router.push('/modules')
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       return toast({

@@ -24,10 +24,16 @@ export async function GET(request: Request) {
       return NextResponse.json({ message: 'Erro interno, contate a TI' }, { status: 500 })
     }
 
-    const hasAcsModId = cookies().has('acsModData')
+    const hasAcsModData = cookies().has('acsModData')
 
-    if (hasAcsModId) {
+    if (hasAcsModData) {
       cookies().delete('acsModData')
+    }
+
+    const hasAcsRtnData = cookies().has('acsRtnData')
+
+    if (hasAcsRtnData) {
+      cookies().delete('acsRtnData')
     }
 
     const data = FormsCrypt.dataCrypt(modulesList)

@@ -2,17 +2,64 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-const findAcsResource = async (data: { acsRoutineId: number; recRotId: number }) => {
-  const access = await prisma.sis_acess_recurso.findFirst({
+interface AcsResourceProps {
+  id: number
+  sis_recurso_rotina: {
+    id: number
+    nome: string
+    slug: string
+  }
+}
+
+const findAcsResource = async (data: { acsRtnId: number }) => {
+  const access: AcsResourceProps[] = await prisma.sis_acess_recurso.findMany({
+    select: {
+      id: true,
+      sis_recurso_rotina: {
+        select: {
+          id: true,
+          nome: true,
+          slug: true,
+        },
+      },
+    },
     where: {
-      acess_rot_id: data.acsRoutineId,
-      rec_rotina_id: data.recRotId,
+      acess_rot_id: data.acsRtnId,
     },
   })
   if (access === null) {
-    return false
+    return null
   } else {
-    return access.id
+    return access
+  }
+}
+
+interface ListResourceProps {
+  sis_recurso_rotina: {
+    nome: string
+    slug: string
+  }
+}
+
+const listResource = async (acsRtnId: number) => {
+  const list: ListResourceProps[] = await prisma.sis_acess_recurso.findMany({
+    select: {
+      sis_recurso_rotina: {
+        select: {
+          nome: true,
+          slug: true,
+        },
+      },
+    },
+    where: {
+      acess_rot_id: Number(acsRtnId),
+    },
+  })
+
+  if (list === null) {
+    return []
+  } else {
+    return list
   }
 }
 
@@ -28,4 +75,5 @@ const createAcsResource = async (data: { acsRotId: number; recRotinaId: number }
 export const acsResource = {
   findAcsResource,
   createAcsResource,
+  listResource,
 }

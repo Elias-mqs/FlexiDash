@@ -11,11 +11,12 @@ const findRoutine = async (modId: number) => {
   return routine
 }
 
-const createRoutine = async (routineData: { name: string; modId: number }) => {
+const createRoutine = async (routineData: { name: string; modId: number, slug: string }) => {
   await prisma.sis_rotinas.create({
     data: {
       nome: routineData.name,
       mod_id: routineData.modId,
+      slug: routineData.slug
     },
   })
 }
