@@ -38,8 +38,6 @@ export function Armazens({ field }: any) {
 
         const data: ArmazProps = await res.json()
 
-        console.log(data)
-
         setArmaz(data.armazens)
       } catch (error) {
         throw new Error('Failed to fetch data')
@@ -49,11 +47,16 @@ export function Armazens({ field }: any) {
     getArmaz()
   }, [])
 
-  console.log('renderizando no arquivo armazem')
-
   return (
     <Suspense>
-      <Select {...field} placeholder="XX" color="#000" focusBorderColor="blue.300" required>
+      <Select
+        {...field}
+        placeholder="XX"
+        color="gray.500"
+        focusBorderColor="blue.300"
+        _hover={{ cursor: 'pointer' }}
+        required
+      >
         {armaz.map((armaz) => (
           <option key={armaz.codigo} value={armaz.codigo} style={{ fontWeight: 500, backgroundColor: '#f5f5f5' }}>
             {armaz.codigo}

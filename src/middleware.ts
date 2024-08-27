@@ -106,7 +106,6 @@ export async function middleware(request: NextRequest) {
           /// /////////////////////////////////////////////////////////////////////////
           /// /////// VERIFICAÇÃO DE PERMISSÃO DE ACESSO AOS RECURSOS /////////////////
           /// /////////////////////////////////////////////////////////////////////////
-
           if (pathSegments.length >= 4) {
             const resourceName = pathSegments[3]
 

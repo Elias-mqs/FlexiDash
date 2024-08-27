@@ -15,8 +15,9 @@ const resourceDetails: Record<string, { icon: IconType; route: string }> = {
 
 export default function HomeInventory() {
   const { useListResource } = useAccessUser()
+
   const resourceList = useListResource()
-  console.log(resourceList)
+
   return (
     <Flex w="100%" direction="column" p={4} overflow="auto">
       <Grid templateColumns={{ base: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }} gap={8}>

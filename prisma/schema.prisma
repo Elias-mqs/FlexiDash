@@ -10,29 +10,31 @@ datasource db {
 model inv_document {
   id             Int           @id @default(autoincrement())
   documento      Int
-  equipe_id      Int
   status         String        @db.VarChar(15)
   armazem        String        @db.VarChar(5)
   usr_id_ini     Int
   dt_ini         String        @db.VarChar(100)
   usr_id_fim     Int?
   dt_fim         String?       @db.VarChar(100)
-  inv_equipe     inv_equipe    @relation(fields: [equipe_id], references: [id], onUpdate: Restrict, map: "inv_document_ibfk_1")
   sis_usr_id_ini sis_usuarios  @relation("inv_doc_usr_ini", fields: [usr_id_ini], references: [id], onUpdate: Restrict, map: "inv_document_ibfk_2")
   sis_usr_id_fim sis_usuarios? @relation("inv_doc_usr_fim", fields: [usr_id_fim], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "inv_document_ibfk_3")
 
-  @@index([equipe_id], map: "equipe_id")
+  inv_equipe inv_equipe[] @relation("DocumentToEquipe")
+
   @@index([usr_id_fim], map: "usr_id_fim")
   @@index([usr_id_ini], map: "usr_id_ini")
 }
 
 model inv_equipe {
-  id           Int            @id @default(autoincrement())
-  usr_id       Int
-  inv_document inv_document[]
-  sis_usuarios sis_usuarios   @relation(fields: [usr_id], references: [id], onUpdate: Restrict, map: "inv_equipe_ibfk_1")
+  id               Int          @id @default(autoincrement())
+  usr_id           Int
+  inv_document_id  Int // Coluna opcional para associar a `inv_document`
+  inv_document_rel inv_document @relation("DocumentToEquipe", fields: [inv_document_id], references: [id])
+
+  sis_usuarios sis_usuarios @relation(fields: [usr_id], references: [id], onUpdate: Restrict, map: "inv_equipe_ibfk_1")
 
   @@index([usr_id], map: "usr_id")
+  @@index([inv_document_id])
 }
 
 model sis_acess_modulo {
