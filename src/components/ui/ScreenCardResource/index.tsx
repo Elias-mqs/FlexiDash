@@ -27,6 +27,7 @@ export function ScreenCardResource({ icon, title, route }: ScreenCardProps) {
       gap={1}
       _hover={{ bg: '#f0f0f0', cursor: 'pointer' }}
       onClick={() => router.push(`${pathname}/${route}`)}
+      minW="195px"
     >
       <Flex bg="#f0f0f0" p={2} marginBottom="auto" borderRadius={12}>
         <Icon as={icon} color="blue.700" fontSize={{ base: 30, sm: 24 }} />

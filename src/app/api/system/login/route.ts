@@ -15,7 +15,7 @@ export async function POST(request: Request) {
 
   const userForm = remapUsers.srcUser({ username, pass })
 
-  if (username === 'adminasdokanfiudfngbidunfgi' && pass === 'qweQWE123!@#') {
+  if (username === 'adminsadsdads' && pass === 'qweQWE123!@#') {
     const passCrypt = await PassCrypt.hashPassword('qweQWE123!@#')
 
     db.users.createUser({

@@ -28,11 +28,11 @@ api.interceptors.request.use(
 /// ////////////////// RESPONSE INTERCEPTORS /////////////////////////
 /// //////////////////////////////////////////////////////////////////
 
-interface ResponseErrorProps {
-  status: number
-  title: string
-  message: string
-}
+// interface ResponseErrorProps {
+//   status: number
+//   title: string
+//   message: string
+// }
 
 api.interceptors.response.use(
   (response) => {
@@ -48,6 +48,7 @@ api.interceptors.response.use(
 
     //     return Promise.reject(error);
     // }
+    // eslint-disable-next-line prefer-promise-reject-errors
     return Promise.reject({ data: error.response.data, status: error.response.status })
   },
 )

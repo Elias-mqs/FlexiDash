@@ -18,7 +18,15 @@ export default function ModuleLayout({ children }: Readonly<{ children: React.Re
         <Flex w="100%" direction="column">
           <Header />
           {/* o H do flex abaixo é 100%, eu alterei pra 80vh para compensar a saida provisória do Sidebar */}
-          <Flex h={{ base: '100vh', sm: 'calc(100vh - 135px)' }} mt={4} ml={4} bg="#fff" borderRadius="1rem" p={4}>
+          <Flex
+            h={{ base: '100vh', sm: 'calc(100vh - 135px)' }}
+            mt={4}
+            ml={4}
+            bg="#fff"
+            borderRadius="1rem"
+            p={4}
+            boxShadow="0px 1px 4px 1px rgba(0, 0, 0, 0.2)"
+          >
             {children}
           </Flex>
           <Footer />

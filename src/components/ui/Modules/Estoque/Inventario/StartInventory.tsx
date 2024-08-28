@@ -1,13 +1,15 @@
-'use client'
-
-import { Button, Flex, Grid, Input, Text, useToast } from '@chakra-ui/react'
+import { Button, Flex, Grid, Input, useToast, Text } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { Controller, useForm } from 'react-hook-form'
-import z from 'zod'
+import { z } from 'zod'
 
-import { Armazens, TeamMembers } from '@/components/ui/Modules/Estoque/Inventario'
-import { api, FormsCrypt } from '@/services'
+import { useUserData } from '@/context/User/UserDataContext'
+import { FormsCrypt, api } from '@/services'
+
+import { Armazens } from './getArmaz'
+import { TeamMembers } from './TeamMembers'
 
 const newInventorySchema = z.object({
   document: z.coerce.string().max(9),
@@ -17,8 +19,10 @@ const newInventorySchema = z.object({
 
 type StartNewInventory = z.infer<typeof newInventorySchema>
 
-export default function CreateInventory() {
+export function StartInventory() {
   const toast = useToast()
+  const router = useRouter()
+  const dataUser = useUserData()
 
   const { handleSubmit, control, resetField, setValue } = useForm<StartNewInventory>({
     resolver: zodResolver(newInventorySchema),
@@ -26,17 +30,11 @@ export default function CreateInventory() {
   })
 
   const handleForm = async (data: StartNewInventory) => {
-    console.log(data)
-
-    const formCrypt = FormsCrypt.dataCrypt(data)
-
-    console.log(formCrypt)
+    const formCrypt = FormsCrypt.dataCrypt({ ...data, usrId: dataUser.id })
 
     try {
       // VOU ADICIONAR MAIS UMAS VARIAVEIS SÓ PARA TESTAR A API
-      const res = await api.post('modules/stock/inventory/startInventory', formCrypt)
-
-      console.log(res)
+      await api.post('modules/stock/inventory/startInventory', formCrypt)
 
       toast({
         title: 'Sucesso!',
@@ -51,10 +49,9 @@ export default function CreateInventory() {
       resetField('armaz')
       resetField('teamMemberId')
 
-      // router.push(`/inventario/shelf/details?armaz=${data.armaz}&doc=${data.document}`)
+      router.push(`/modules/estoque/inventario`)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      console.log(error)
       return toast({
         title: error.data?.title,
         description: error.data?.message,
@@ -65,8 +62,6 @@ export default function CreateInventory() {
       })
     }
   }
-
-  console.log('renderizando page create')
 
   return (
     <Flex w="100%" overflow="auto" direction="column" align="center">
@@ -90,6 +85,7 @@ export default function CreateInventory() {
               <Text fontWeight={600} fontSize={14} pb={1} pl={2} color="gray.500">
                 Código inventário:
               </Text>
+
               <Input
                 value={value}
                 maxLength={9}
@@ -111,6 +107,7 @@ export default function CreateInventory() {
               <Text fontWeight={600} fontSize={14} pb={1} pl={2} color="gray.500">
                 Armazém:
               </Text>
+
               <Armazens field={field} />
             </Flex>
           )}
@@ -120,6 +117,7 @@ export default function CreateInventory() {
           <Text fontWeight={600} fontSize={14} pb={1} pl={2} color="gray.500">
             Membros da equipe:
           </Text>
+
           <TeamMembers setValue={setValue} />
         </Flex>
 
