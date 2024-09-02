@@ -7,7 +7,7 @@ interface JwtProps {
 const signIn = (data: JwtProps): string | 'JWT_SECRET_NOT_FOUND' => {
   if (!process.env.JWT_SECRET) return 'JWT_SECRET_NOT_FOUND'
 
-  return jwt.sign(data, process.env.JWT_SECRET, { expiresIn: '1h' })
+  return jwt.sign(data, process.env.JWT_SECRET, { expiresIn: '2h' })
 }
 
 const verify = (token: string): JwtProps | 'JWT_SECRET_NOT_FOUND' | 'INVALID_TOKEN' => {

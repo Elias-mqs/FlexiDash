@@ -21,7 +21,7 @@ export async function POST(request: Request) {
   try {
     const formInvDocument: InvDocumentProps = {
       documento: inventoryData.document,
-      status: 'Iniciado',
+      status: 'I',
       armazem: inventoryData.armaz,
       usrId: inventoryData.usrId,
       dtIni: formattedDate,
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
     }
 
     if (!newInventory) {
-      return new Error('Erro ao criar inventario')
+      throw new Error('Erro ao criar inventario')
     }
 
     await dbInventory.team.createTeam(inventoryData.teamMemberId, newInventory)

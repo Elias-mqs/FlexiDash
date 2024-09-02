@@ -34,6 +34,38 @@ async function findTeamMember(rotinaId: number): Promise<TeamMember[]> {
   return teamMembers
 }
 
+async function editTeam(document: string) {
+  const documentId = await prisma.inv_document.findFirst({
+    where: { documento: document },
+    select: { id: true },
+  })
+
+  if (documentId === null) {
+    return 'ERROR_FIND_DOCUMENTID'
+  }
+
+  const availableMembers: TeamMember[] = await prisma.sis_usuarios.findMany({
+    where: {
+      inv_equipe: {
+        some: {
+          inv_document_id: documentId.id,
+        },
+      },
+    },
+    select: {
+      id: true,
+      nome: true,
+      email: true,
+    },
+  })
+
+  if (availableMembers.length < 1) {
+    return 'ERROR_FIND_AVAILABLE_MEMBERS'
+  }
+
+  return availableMembers
+}
+
 async function createTeam(membersId: number[], invDocumentId: number) {
   const data = membersId.map((memberId) => ({
     usr_id: memberId,
@@ -55,4 +87,5 @@ async function createTeam(membersId: number[], invDocumentId: number) {
 export const team = {
   findTeamMember,
   createTeam,
+  editTeam,
 }

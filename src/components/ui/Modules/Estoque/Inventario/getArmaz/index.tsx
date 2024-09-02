@@ -2,21 +2,12 @@ import { Suspense, useEffect, useState } from 'react'
 
 import { Select } from '@chakra-ui/react'
 
-// USAR ESSE DEPOIS DE COMPILAR(VAI SER COMPLADO HJ A NOITE 07/08) A ULTIMA ALTERTAÇÃO DA API
-// interface CodArmazProps {
-//     cod: string
-// }
-
-// interface ArmazProps {
-//     armaz: CodArmazProps[]
-// }
-
 interface CodArmazProps {
-  codigo: string
+  cod: string
 }
 
 interface ArmazProps {
-  armazens: CodArmazProps[]
+  armaz: CodArmazProps[]
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -38,7 +29,7 @@ export function Armazens({ field }: any) {
 
         const data: ArmazProps = await res.json()
 
-        setArmaz(data.armazens)
+        setArmaz(data.armaz)
       } catch (error) {
         throw new Error('Failed to fetch data')
       }
@@ -53,13 +44,14 @@ export function Armazens({ field }: any) {
         {...field}
         placeholder="XX"
         color="gray.500"
+        fontWeight={500}
         focusBorderColor="blue.300"
         _hover={{ cursor: 'pointer' }}
         required
       >
         {armaz.map((armaz) => (
-          <option key={armaz.codigo} value={armaz.codigo} style={{ fontWeight: 500, backgroundColor: '#f5f5f5' }}>
-            {armaz.codigo}
+          <option key={armaz.cod} value={armaz.cod} style={{ fontWeight: 500, backgroundColor: '#f5f5f5' }}>
+            {armaz.cod}
           </option>
         ))}
       </Select>

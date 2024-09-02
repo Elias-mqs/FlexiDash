@@ -1,10 +1,11 @@
 import { PrismaClient } from '@prisma/client'
+import { withAccelerate } from '@prisma/extension-accelerate'
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient().$extends(withAccelerate())
 
 export interface InvDocumentProps {
   documento: string
-  status: 'Iniciado' | 'Encerrado'
+  status: 'I' | 'E'
   armazem: string
   usrId: number
   dtIni: string
@@ -26,7 +27,7 @@ async function createInvDocument(data: InvDocumentProps) {
     // Verificar se existe algum documento com status 'Iniciado'
     const anyStartedDocument = await prisma.inv_document.findFirst({
       where: {
-        status: 'Iniciado',
+        status: 'I',
       },
     })
 
@@ -60,19 +61,72 @@ async function createInvDocument(data: InvDocumentProps) {
 }
 
 async function verifyStatus() {
-  const status = prisma.inv_document.findFirst({
+  const status = await prisma.inv_document.findFirst({
+    cacheStrategy: {
+      ttl: 10,
+    },
     where: {
-      status: 'Iniciado',
+      status: 'I',
     },
     select: {
       documento: true,
+      armazem: true,
     },
   })
 
   return status
 }
 
+export interface CloseInvProps {
+  status: 'E'
+  usrId: number
+  dtFim: string
+  document: string
+}
+
+enum ResultErrors {
+  NOT_FOUND = 'DOCUMENT_NOT_FOUND',
+  VALIDATION = 'INVALID_DATA',
+}
+
+async function closeInvDocument(data: CloseInvProps): Promise<ResultErrors | void> {
+  if (!data || !data.document || !data.usrId || !data.dtFim) {
+    return ResultErrors.VALIDATION
+  }
+  try {
+    const idDocument = await prisma.inv_document.findFirst({
+      where: {
+        documento: data.document,
+        status: 'I',
+      },
+      select: {
+        id: true,
+      },
+    })
+
+    if (!idDocument) {
+      return ResultErrors.NOT_FOUND
+    }
+
+    await prisma.inv_document.update({
+      where: {
+        id: idDocument.id,
+      },
+      data: {
+        status: data.status,
+        usr_id_fim: data.usrId,
+        dt_fim: data.dtFim,
+      },
+    })
+  } catch (error) {
+    console.error('Erro ao atualizar documento:', error)
+  } finally {
+    await prisma.$disconnect()
+  }
+}
+
 export const invDocument = {
   createInvDocument,
   verifyStatus,
+  closeInvDocument,
 }

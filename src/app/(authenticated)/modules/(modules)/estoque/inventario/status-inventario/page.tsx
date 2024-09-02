@@ -9,6 +9,7 @@ import { api } from '@/services'
 interface InventoryData {
   status: boolean | undefined
   document: string
+  armaz: string
 }
 
 export default function StatusInventory() {
@@ -23,7 +24,7 @@ export default function StatusInventory() {
         console.error(error)
       }
     },
-    initialData: { status: undefined, document: '' },
+    initialData: { status: undefined, document: '', armaz: '' },
   })
 
   if (data?.status === undefined) {
@@ -36,7 +37,5 @@ export default function StatusInventory() {
     )
   }
 
-  return data.status ? <CloseInventory document={data.document} /> : <StartInventory />
+  return data.status ? <CloseInventory document={data.document} armaz={data.armaz} /> : <StartInventory />
 }
-
-/// /////////////// NOME DESSE RECURSO VAI SER "Iniciar/Encerrar Inventário" E O SLUG VAI SER "status-inventario"

@@ -20,8 +20,8 @@ export default function ModuleLayout({ children }: Readonly<{ children: React.Re
           {/* o H do flex abaixo é 100%, eu alterei pra 80vh para compensar a saida provisória do Sidebar */}
           <Flex
             h={{ base: '100vh', sm: 'calc(100vh - 135px)' }}
-            mt={4}
-            ml={4}
+            mt={{ base: 0, sm: 4 }}
+            ml={{ base: 0, sm: 4 }}
             bg="#fff"
             borderRadius="1rem"
             p={4}

@@ -50,7 +50,6 @@ export function TeamMembers({ setValue }: any) {
     } else {
       updatedSelectedMembers = [...selectedMembers, memberId]
     }
-    console.log(updatedSelectedMembers)
 
     setSelectedMembers(updatedSelectedMembers)
     setValue('teamMemberId', updatedSelectedMembers)
@@ -63,7 +62,7 @@ export function TeamMembers({ setValue }: any) {
         border="1px solid #e0e0e0"
         rightIcon={selectedMembers.length > 0 ? <FaCheckCircle color="green" /> : <FiSearch />}
         color="gray.500"
-        fontWeight={400}
+        fontWeight={500}
         onClick={onOpen}
       >
         {selectedMembers.length > 0 ? 'Equipe formada' : 'Selecionar'}

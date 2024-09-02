@@ -81,7 +81,7 @@ export function StartInventory() {
           name="document"
           control={control}
           render={({ field: { value, onChange } }) => (
-            <Flex w="100%" minW="140px" p={2} direction="column">
+            <Flex w="100%" minW="140px" p={2} direction="column" justify="end">
               <Text fontWeight={600} fontSize={14} pb={1} pl={2} color="gray.500">
                 Código inventário:
               </Text>
@@ -103,7 +103,7 @@ export function StartInventory() {
           name="armaz"
           control={control}
           render={({ field }) => (
-            <Flex w="100%" p={2} direction="column">
+            <Flex w="100%" p={2} direction="column" justify="end">
               <Text fontWeight={600} fontSize={14} pb={1} pl={2} color="gray.500">
                 Armazém:
               </Text>
@@ -113,7 +113,7 @@ export function StartInventory() {
           )}
         />
 
-        <Flex w="100%" p={2} direction="column">
+        <Flex w="100%" p={2} direction="column" justify="end">
           <Text fontWeight={600} fontSize={14} pb={1} pl={2} color="gray.500">
             Membros da equipe:
           </Text>
