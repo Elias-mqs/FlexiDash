@@ -13,7 +13,7 @@ interface InventoryData {
 }
 
 export default function StatusInventory() {
-  const { data } = useQuery<InventoryData | undefined>({
+  const { data, refetch } = useQuery<InventoryData | undefined>({
     queryKey: ['verify-status'],
     queryFn: async () => {
       try {
@@ -37,5 +37,9 @@ export default function StatusInventory() {
     )
   }
 
-  return data.status ? <CloseInventory document={data.document} armaz={data.armaz} /> : <StartInventory />
+  return data.status ? (
+    <CloseInventory document={data.document} armaz={data.armaz} refetch={refetch} />
+  ) : (
+    <StartInventory />
+  )
 }

@@ -83,6 +83,7 @@ export function EditTeamMembers({ setValue }: any) {
     <Suspense>
       <Button
         bg="transparent"
+        boxShadow="0px 0px 1px .5px rgba(0, 0, 0, 0.05)"
         border="1px solid #e0e0e0"
         rightIcon={selectedMembers.length > 0 ? <FaCheckCircle color="green" /> : <FiSearch />}
         color="gray.500"

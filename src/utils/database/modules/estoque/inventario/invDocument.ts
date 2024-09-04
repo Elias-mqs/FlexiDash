@@ -3,6 +3,10 @@ import { withAccelerate } from '@prisma/extension-accelerate'
 
 const prisma = new PrismaClient().$extends(withAccelerate())
 
+/// ////////////////////////////////////////////////////////////////////
+/// ///////////////// CRIAR UM NOVO INVENTÁRIO /////////////////////////
+/// ////////////////////////////////////////////////////////////////////
+
 export interface InvDocumentProps {
   documento: string
   status: 'I' | 'E'
@@ -60,6 +64,10 @@ async function createInvDocument(data: InvDocumentProps) {
   }
 }
 
+/// //////////////////////////////////////////////////////////////////////////
+/// ///////////////// VERIFCIAR STATUS DO INVENTARIO /////////////////////////
+/// //////////////////////////////////////////////////////////////////////////
+
 async function verifyStatus() {
   const status = await prisma.inv_document.findFirst({
     cacheStrategy: {
@@ -84,10 +92,14 @@ export interface CloseInvProps {
   document: string
 }
 
-enum ResultErrors {
+export enum ResultErrors {
   NOT_FOUND = 'DOCUMENT_NOT_FOUND',
   VALIDATION = 'INVALID_DATA',
 }
+
+/// ////////////////////////////////////////////////////////////////////
+/// //////////////////// ENCERRAR INVENTÁRIO ///////////////////////////
+/// ////////////////////////////////////////////////////////////////////
 
 async function closeInvDocument(data: CloseInvProps): Promise<ResultErrors | void> {
   if (!data || !data.document || !data.usrId || !data.dtFim) {
@@ -125,8 +137,54 @@ async function closeInvDocument(data: CloseInvProps): Promise<ResultErrors | voi
   }
 }
 
+/// ////////////////////////////////////////////////////////////////////
+/// //////////////////// ATUALIZAR INVENTÁRIO //////////////////////////
+/// ////////////////////////////////////////////////////////////////////
+
+interface UpdateProps {
+  document: string
+  armaz: string
+}
+
+async function updateInvDocument(updateData: UpdateProps): Promise<ResultErrors | void> {
+  if (!updateData || !updateData.document || !updateData.armaz) {
+    return ResultErrors.VALIDATION
+  }
+
+  try {
+    const idDocument = await prisma.inv_document.findFirst({
+      where: {
+        documento: updateData.document,
+        status: 'I',
+      },
+      select: {
+        id: true,
+      },
+    })
+
+    if (!idDocument) {
+      return ResultErrors.NOT_FOUND
+    }
+
+    await prisma.inv_document.update({
+      where: {
+        id: idDocument.id,
+      },
+      data: {
+        documento: updateData.document,
+        armazem: updateData.armaz,
+      },
+    })
+  } catch (error) {
+    console.error('Erro ao atualizar documento:', error)
+  } finally {
+    await prisma.$disconnect()
+  }
+}
+
 export const invDocument = {
   createInvDocument,
   verifyStatus,
   closeInvDocument,
+  updateInvDocument,
 }

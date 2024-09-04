@@ -16,6 +16,10 @@ export async function POST(request: Request) {
   const form = await request.json()
   const inventoryData: StartNewInventory = FormsCrypt.verifyData(form)
 
+  if (!inventoryData.armaz || !inventoryData.document || !inventoryData.teamMemberId || !inventoryData.usrId) {
+    throw new Error('Formulário mal formado')
+  }
+
   const formattedDate = dayjs().format('DD/MM/YYYY')
 
   try {

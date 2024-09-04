@@ -24,7 +24,8 @@ import { api, FormsCrypt } from '@/services'
 
 import { EditDocument } from './EditDocument'
 
-export function CloseInventory(data: { document: string; armaz: string }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function CloseInventory(data: { document: string; armaz: string; refetch: any }) {
   const dataUser = useUserData()
   const toast = useToast()
   const router = useRouter()
@@ -177,7 +178,13 @@ export function CloseInventory(data: { document: string; armaz: string }) {
         </Text>
       </Flex>
 
-      <EditDocument isOpen={isOpen && activeModal === 'edit'} onClose={onClose} />
+      <EditDocument
+        isOpen={isOpen && activeModal === 'edit'}
+        onClose={onClose}
+        document={data.document}
+        armaz={data.armaz}
+        refetch={data.refetch}
+      />
       <CloseModal isOpen={isOpen && activeModal === 'closeInventory'} onClose={onClose} closeInv={handleCloseInv} />
     </Flex>
   )

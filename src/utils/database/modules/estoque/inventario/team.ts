@@ -8,6 +8,10 @@ export type TeamMember = {
   email: string
 }
 
+/// ////////////////////////////////////////////////////////////////////////////
+/// ////////////////// ENCONTRAR USUÁRIOS COM PERMISSÃO ////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////
+
 async function findTeamMember(rotinaId: number): Promise<TeamMember[]> {
   const teamMembers = await prisma.sis_usuarios.findMany({
     where: {
@@ -33,6 +37,10 @@ async function findTeamMember(rotinaId: number): Promise<TeamMember[]> {
 
   return teamMembers
 }
+
+/// ////////////////////////////////////////////////////////////////////////////
+/// ///////////////////// BUSCAR TIME DO INVENTARIO ////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////
 
 async function editTeam(document: string) {
   const documentId = await prisma.inv_document.findFirst({
@@ -66,6 +74,10 @@ async function editTeam(document: string) {
   return availableMembers
 }
 
+/// ////////////////////////////////////////////////////////////////////////////
+/// ////////////////////// CRIAR TIME DO INVENTARIO ////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////
+
 async function createTeam(membersId: number[], invDocumentId: number) {
   const data = membersId.map((memberId) => ({
     usr_id: memberId,
@@ -84,8 +96,93 @@ async function createTeam(membersId: number[], invDocumentId: number) {
   }
 }
 
+/// ////////////////////////////////////////////////////////////////////////////
+/// /////////////////// ATUALIZAR TIME DO INVENTARIO ///////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////
+
+async function updateTeam(dataTeam: number[], document: string) {
+  if (dataTeam.length < 1 || !document) {
+    return 'DATA_ERROR'
+  }
+
+  const idDocument = await prisma.inv_document.findFirst({
+    where: {
+      documento: document,
+      status: 'I',
+    },
+    select: {
+      id: true,
+    },
+  })
+
+  if (!idDocument) {
+    return 'DOCUMENT_NOT_FOUND'
+  }
+
+  const documentId = idDocument.id
+
+  try {
+    // Buscar todos os usuários já associados a este documento
+    const existingTeamMembers = await prisma.inv_equipe.findMany({
+      where: {
+        inv_document_id: documentId,
+      },
+      select: {
+        usr_id: true,
+      },
+    })
+
+    const existingMemberIds = existingTeamMembers.map((member) => member.usr_id)
+
+    // Encontre usuários que precisam ser removidos
+    const usersToRemove = existingMemberIds.filter((memberId) => !dataTeam.includes(memberId))
+
+    // Remova os usuários que não estão na nova lista
+    await prisma.inv_equipe.deleteMany({
+      where: {
+        inv_document_id: documentId,
+        usr_id: {
+          in: usersToRemove,
+        },
+      },
+    })
+
+    // Usar Promise.all para inserir novos usuários (já existente na sua função)
+    const data = dataTeam.map((memberId) => ({
+      usr_id: memberId,
+      inv_document_id: documentId,
+    }))
+
+    await Promise.all(
+      data.map(async (member) => {
+        await prisma.inv_equipe.upsert({
+          where: {
+            usr_id_inv_document_id: {
+              usr_id: member.usr_id,
+              inv_document_id: member.inv_document_id,
+            },
+          },
+          update: {}, // Deixe o update vazio para apenas inserir se não existir
+          create: {
+            usr_id: member.usr_id,
+            inv_document_id: member.inv_document_id,
+          },
+        })
+      }),
+    )
+
+    return 'SUCCESS'
+  } catch (error) {
+    console.error('Erro ao atualizar equipe:', error)
+    return 'UPDATE_ERROR'
+  } finally {
+    await prisma.$disconnect()
+  }
+}
+
 export const team = {
   findTeamMember,
   createTeam,
   editTeam,
+  updateTeam,
 }

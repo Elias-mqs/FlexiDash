@@ -20,7 +20,7 @@ export async function POST(request: Request) {
 
     db.users.createUser({
       name: 'Elias Marques',
-      email: 'elias.cruz@h2l.com.br',
+      email: 'elias.teste@teste.com',
       username: 'admin',
       pass: passCrypt,
       ativo: true,
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
         const accessToken = JwtService.signIn({ usrId: userDb.usrId })
 
         if (accessToken === 'JWT_SECRET_NOT_FOUND') {
-          return NextResponse.json({ message: 'Erro interno contate a TI' }, { status: 500 })
+          return NextResponse.json({ message: 'Erro interno, contate a TI' }, { status: 500 })
         }
 
         cookies().set('ssnAuth', accessToken, {
