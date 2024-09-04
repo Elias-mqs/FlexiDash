@@ -147,7 +147,7 @@ async function updateTeam(dataTeam: number[], document: string) {
       },
     })
 
-    // Usar Promise.all para inserir novos usuários (já existente na sua função)
+    // Usar Promise.all para inserir novos usuários
     const data = dataTeam.map((memberId) => ({
       usr_id: memberId,
       inv_document_id: documentId,

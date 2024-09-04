@@ -224,7 +224,7 @@ export function EditDocument({ isOpen, onClose, document, armaz, refetch }: Edit
                 Membros da equipe:
               </Text>
 
-              <EditTeamMembers setValue={setValue} />
+              <EditTeamMembers setValue={setValue} document={document} />
             </Flex>
           </Flex>
 

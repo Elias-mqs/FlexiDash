@@ -27,7 +27,7 @@ interface MembersProps {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function EditTeamMembers({ setValue }: any) {
+export function EditTeamMembers({ setValue, document }: {setValue:any, document: string}) {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [filterMembers, setFilterMembers] = useState('')
 
@@ -38,7 +38,7 @@ export function EditTeamMembers({ setValue }: any) {
   const { data: listUsers } = useQuery({
     queryKey: ['edit-team'],
     queryFn: async () => {
-      const formData = FormsCrypt.dataCrypt({ document: '987654321' })
+      const formData = FormsCrypt.dataCrypt({ document })
       try {
         const { data } = await api.post('modules/stock/inventory/editTeamMembers', formData)
         const listUsers: MembersProps = FormsCrypt.verifyData(data)
@@ -48,6 +48,8 @@ export function EditTeamMembers({ setValue }: any) {
         console.error('INTERNAL ERROR')
       }
     },
+    gcTime: 0,
+    staleTime: 0,
   })
 
   // UseEffect para definir o estado inicial de selectedMembers com os usuários já inscritos
