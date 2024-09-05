@@ -17,6 +17,7 @@ import { FaCheck, FaRegEdit } from 'react-icons/fa'
 import { RiCloseLine } from 'react-icons/ri'
 import { z } from 'zod'
 
+import { useUserData } from '@/context/User/UserDataContext'
 import { api, FormsCrypt } from '@/services'
 
 import { EditTeamMembers } from './EditTeam'
@@ -40,6 +41,8 @@ const updateInvSchema = z.object({
 export type UpdateInvProps = z.infer<typeof updateInvSchema>
 
 export function EditDocument({ isOpen, onClose, document, armaz, refetch }: EditDocumentProps) {
+  const dataUser = useUserData()
+
   const toast = useToast()
 
   /// ///////////// Formulário para atualizar informações do inventário
@@ -99,6 +102,10 @@ export function EditDocument({ isOpen, onClose, document, armaz, refetch }: Edit
         duration: 2000,
         isClosable: true,
       })
+    }
+
+    if (data.teamMemberId.length < 1) {
+      data.teamMemberId.push(dataUser.id)
     }
 
     const formCrypt = FormsCrypt.dataCrypt(data)
@@ -224,7 +231,7 @@ export function EditDocument({ isOpen, onClose, document, armaz, refetch }: Edit
                 Membros da equipe:
               </Text>
 
-              <EditTeamMembers setValue={setValue} document={document} />
+              <EditTeamMembers setValue={setValue} document={document} armaz={armaz} />
             </Flex>
           </Flex>
 

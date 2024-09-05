@@ -9,8 +9,12 @@ export async function POST(request: NextRequest) {
   const data = await request.json()
   const { document, armaz, teamMemberId }: UpdateInvProps = FormsCrypt.verifyData(data)
 
-  if (!document || !armaz || !teamMemberId) {
+  if (!document || !armaz) {
     return NextResponse.json({ message: 'Informações inválidas, tente novamente' }, { status: 400 })
+  }
+
+  if (teamMemberId.length < 1) {
+    throw new Error('Erro no teamMemberId')
   }
 
   try {

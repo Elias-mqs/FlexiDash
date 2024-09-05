@@ -42,9 +42,13 @@ async function findTeamMember(rotinaId: number): Promise<TeamMember[]> {
 /// ///////////////////// BUSCAR TIME DO INVENTARIO ////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////
 
-async function editTeam(document: string) {
+async function editTeam(document: string, armaz: string, date: string) {
   const documentId = await prisma.inv_document.findFirst({
-    where: { documento: document },
+    where: {
+      documento: document,
+      armazem: armaz,
+      dt_ini: date,
+    },
     select: { id: true },
   })
 

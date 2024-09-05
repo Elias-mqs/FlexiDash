@@ -27,7 +27,7 @@ interface MembersProps {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function EditTeamMembers({ setValue, document }: {setValue:any, document: string}) {
+export function EditTeamMembers({ setValue, document, armaz }: { setValue: any; document: string; armaz: string }) {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [filterMembers, setFilterMembers] = useState('')
 
@@ -38,7 +38,7 @@ export function EditTeamMembers({ setValue, document }: {setValue:any, document:
   const { data: listUsers } = useQuery({
     queryKey: ['edit-team'],
     queryFn: async () => {
-      const formData = FormsCrypt.dataCrypt({ document })
+      const formData = FormsCrypt.dataCrypt({ document, armaz })
       try {
         const { data } = await api.post('modules/stock/inventory/editTeamMembers', formData)
         const listUsers: MembersProps = FormsCrypt.verifyData(data)
