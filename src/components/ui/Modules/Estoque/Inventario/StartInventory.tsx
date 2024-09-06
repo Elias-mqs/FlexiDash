@@ -1,3 +1,5 @@
+'use client'
+
 import { Button, Flex, Grid, Input, useToast, Text } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Image from 'next/image'
@@ -30,6 +32,10 @@ export function StartInventory() {
   })
 
   const handleForm = async (data: StartNewInventory) => {
+    if (data.teamMemberId.length < 1) {
+      data.teamMemberId.push(dataUser.id)
+    }
+
     const formCrypt = FormsCrypt.dataCrypt({ ...data, usrId: dataUser.id })
 
     try {

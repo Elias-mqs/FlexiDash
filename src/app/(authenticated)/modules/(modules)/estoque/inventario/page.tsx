@@ -1,7 +1,8 @@
 'use client'
 
 import { Flex, Grid } from '@chakra-ui/react'
-import { FaCogs, FaBox, FaArchive } from 'react-icons/fa'
+import { BsBookshelf } from 'react-icons/bs'
+import { FaCogs, FaArchive } from 'react-icons/fa'
 import { IconType } from 'react-icons/lib'
 
 import { ScreenCardResource } from '@/components/ui'
@@ -9,7 +10,7 @@ import { useAccessUser } from '@/context/SystemLists/AccessUserContext'
 
 const resourceDetails: Record<string, { icon: IconType; route: string }> = {
   Gerenciar: { icon: FaCogs, route: '/modules/estoque/inventario/status-inventario' },
-  Estoque: { icon: FaBox, route: 'estoque' }, /// EXEMPLO DE OUTRAS ROTINAS
+  Prateleiras: { icon: BsBookshelf, route: '/modules/estoque/inventario/shelf' }, /// EXEMPLO DE OUTRAS ROTINAS
   Arquivamento: { icon: FaArchive, route: 'arquivamento' }, /// EXEMPLO DE OUTRAS ROTINAS
 }
 

@@ -25,7 +25,7 @@ export default function ShelfDetails() {
     document: searchParams.get('doc'),
   }
 
-  const verifyData: boolean = false
+  const verifyData: boolean = true
 
   useEffect(() => {
     async function getData() {
@@ -41,8 +41,6 @@ export default function ShelfDetails() {
     getData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  console.log(items)
 
   return (
     <>
