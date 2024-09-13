@@ -1,4 +1,5 @@
 import { Roboto } from 'next/font/google'
+import '../globals.css'
 
 import { ProvidersChakra } from '@/providers/chakra'
 

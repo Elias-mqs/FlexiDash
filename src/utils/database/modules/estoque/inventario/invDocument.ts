@@ -182,6 +182,28 @@ async function updateInvDocument(updateData: UpdateProps): Promise<ResultErrors 
   }
 }
 
+/// ////////////////////////////////////////////////////////////////////
+/// //////////////////// ATUALIZAR INVENTÁRIO //////////////////////////
+/// ////////////////////////////////////////////////////////////////////
+
+// async function findDocument(shelf: string) {
+//   if (!shelf) {
+//     return ResultErrors.VALIDATION
+//   }
+
+//   try{
+//     const document = await prisma.inv_document.findFirst({
+//       where: {
+
+//       }
+//     })
+//   } catch (error) {
+//     console.error('Erro ao buscar documento:', error)
+//   } finally {
+//     await prisma.$disconnect()
+//   }
+// }
+
 export const invDocument = {
   createInvDocument,
   verifyStatus,

@@ -1,5 +1,7 @@
 'use client'
 
+import { useMemo } from 'react'
+
 import {
   Accordion,
   AccordionButton,
@@ -7,144 +9,245 @@ import {
   AccordionItem,
   AccordionPanel,
   Box,
-  Grid,
+  Flex,
+  Spinner,
   Stack,
   Text,
+  useMediaQuery,
 } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
+import Image from 'next/image'
+import { FixedSizeGrid as Grid, GridChildComponentProps } from 'react-window'
 
 import { ShelfCard } from '@/components/ui/Modules/Estoque/Inventario'
 import { api } from '@/services'
 
-export type ShelfData = {
-  shelfCod: string
-  Done: number
-  Total: number
-  progress: number
+export type ShelfCodProps = {
+  codPrat: string
+}
+
+interface ScreenProps {
+  columnCount: number
+  columnWidth: number
+  height: number
+  rowCount: (group: string) => number
+  width: number
 }
 
 export default function ShelfInv() {
+  const [isSm] = useMediaQuery('(min-width: 481px) and (max-width: 768px)')
+  const [isMd] = useMediaQuery('(min-width: 769px) and (max-width: 992px)')
+  const [isLg] = useMediaQuery('(min-width: 993px) and (max-width: 1200px)')
+  const [isXl] = useMediaQuery('(min-width: 1201px) and (max-width: 1536px)')
+  const [is2xl] = useMediaQuery('(min-width: 1537px)')
+
   const { data } = useQuery({
     queryKey: ['get-shelves'],
     queryFn: async () => {
       try {
         const response = await api.get('modules/stock/inventory/getShelves')
 
-        console.log('get no shelfInv', response)
-
         return response.data
       } catch (error) {
         console.error(error)
       }
     },
+    gcTime: 0,
+    staleTime: 0,
+    refetchOnWindowFocus: false,
   })
 
-  console.log('data no shelfInv', data)
+  const groupedShelves = useMemo(() => {
+    if (data?.listShelves) {
+      return groupShelves(data.listShelves)
+    }
+  }, [data?.listShelves])
 
-  const shelfDataArray: ShelfData[] = [
-    { shelfCod: 'A01/01', Done: 82, Total: 87, progress: 94.25 },
-    { shelfCod: 'A02/01', Done: 49, Total: 86, progress: 56.98 },
-    { shelfCod: 'A03/01', Done: 71, Total: 80, progress: 88.75 },
-    { shelfCod: 'A04/01', Done: 30, Total: 96, progress: 31.25 },
-    { shelfCod: 'A05/01', Done: 97, Total: 99, progress: 97.98 },
-    { shelfCod: 'A06/01', Done: 70, Total: 97, progress: 72.16 },
-    { shelfCod: 'A07/01', Done: 1, Total: 93, progress: 1.08 },
-    { shelfCod: 'A08/01', Done: 11, Total: 56, progress: 19.64 },
-    { shelfCod: 'A09/01', Done: 11, Total: 48, progress: 22.92 },
-    { shelfCod: 'A10/01', Done: 11, Total: 11, progress: 100.0 },
-    { shelfCod: 'B01/01', Done: 58, Total: 84, progress: 69.05 },
-    { shelfCod: 'B02/01', Done: 49, Total: 49, progress: 100.0 },
-    { shelfCod: 'B03/01', Done: 88, Total: 96, progress: 91.67 },
-    { shelfCod: 'B04/01', Done: 59, Total: 67, progress: 88.06 },
-    { shelfCod: 'B05/01', Done: 92, Total: 92, progress: 100.0 },
-    { shelfCod: 'B06/01', Done: 28, Total: 100, progress: 28.0 },
-    { shelfCod: 'B07/01', Done: 12, Total: 42, progress: 28.57 },
-    { shelfCod: 'B08/01', Done: 77, Total: 89, progress: 86.52 },
-    { shelfCod: 'B09/01', Done: 100, Total: 100, progress: 100.0 },
-    { shelfCod: 'B10/01', Done: 19, Total: 37, progress: 51.35 },
-    { shelfCod: 'C01/01', Done: 81, Total: 96, progress: 84.38 },
-    { shelfCod: 'C02/01', Done: 35, Total: 57, progress: 61.4 },
-    { shelfCod: 'C03/01', Done: 17, Total: 90, progress: 18.89 },
-    { shelfCod: 'C04/01', Done: 53, Total: 85, progress: 62.35 },
-    { shelfCod: 'C05/01', Done: 58, Total: 86, progress: 67.44 },
-    { shelfCod: 'C06/01', Done: 4, Total: 37, progress: 10.81 },
-    { shelfCod: 'C07/01', Done: 86, Total: 88, progress: 97.73 },
-    { shelfCod: 'C08/01', Done: 87, Total: 89, progress: 97.75 },
-    { shelfCod: 'C09/01', Done: 55, Total: 81, progress: 67.9 },
-    { shelfCod: 'C10/01', Done: 73, Total: 98, progress: 74.49 },
-    { shelfCod: 'D01/01', Done: 84, Total: 88, progress: 95.45 },
-    { shelfCod: 'D02/01', Done: 54, Total: 98, progress: 55.1 },
-    { shelfCod: 'D03/01', Done: 77, Total: 93, progress: 82.8 },
-    { shelfCod: 'D04/01', Done: 29, Total: 33, progress: 87.88 },
-    { shelfCod: 'D05/01', Done: 62, Total: 66, progress: 93.94 },
-    { shelfCod: 'D06/01', Done: 12, Total: 92, progress: 13.04 },
-    { shelfCod: 'D07/01', Done: 82, Total: 90, progress: 91.11 },
-    { shelfCod: 'D08/01', Done: 61, Total: 78, progress: 78.21 },
-    { shelfCod: 'D09/01', Done: 10, Total: 42, progress: 23.81 },
-    { shelfCod: 'D10/01', Done: 29, Total: 72, progress: 40.28 },
-    { shelfCod: 'BATATA', Done: 29, Total: 72, progress: 40.28 },
-    { shelfCod: 'MACARRAO', Done: 29, Total: 72, progress: 40.28 },
-  ]
+  const memoizedGroupedShelves = useMemo(() => {
+    if (groupedShelves) {
+      return Object.keys(groupedShelves).sort((a, b) => {
+        if (a === 'OUTROS') return 1
+        if (b === 'OUTROS') return -1
+        return a.localeCompare(b)
+      })
+    }
+  }, [groupedShelves])
 
-  const groupedShelves = groupShelves(shelfDataArray)
+  if (!data?.listShelves) {
+    return (
+      <Flex flex="1" direction="column" align="center" justify="center" gap={2}>
+        <Image alt="loading" src="/img/undraw_Loading.png" width={401} height={430} priority />
+        <Text fontWeight="bold">Carregando...</Text>
+        <Spinner mt={2} thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" />
+      </Flex>
+    )
+  }
 
-  console.log('renderizando')
+  if (!groupedShelves) {
+    return
+  }
 
-  return (
+  // Definindo tamanhos de tela para reponsividadde
+  let screenSize: ScreenProps
+  let numColumns = 5
+  if (is2xl) {
+    numColumns = 7
+    screenSize = {
+      columnCount: 7, // Número de colunas
+      columnWidth: 200, // Largura de cada item no grid (ajuste conforme necessário)
+      height: 720, // Altura total do grid
+      rowCount: (group) => {
+        return Math.ceil(groupedShelves[group].length / numColumns)
+      }, // Número de linhas
+      width: 1420,
+    }
+  } else if (isXl) {
+    numColumns = 6
+    screenSize = {
+      columnCount: 6,
+      columnWidth: 200,
+      height: 720,
+      rowCount: (group) => {
+        return Math.ceil(groupedShelves[group].length / numColumns)
+      },
+      width: 1220,
+    }
+  } else if (isLg) {
+    numColumns = 4
+    screenSize = {
+      columnCount: 4,
+      columnWidth: 200,
+      height: 720,
+      rowCount: (group) => {
+        return Math.ceil(groupedShelves[group].length / numColumns)
+      },
+      width: 820,
+    }
+  } else if (isMd) {
+    numColumns = 3
+    screenSize = {
+      columnCount: 3,
+      columnWidth: 200,
+      height: 720,
+      rowCount: (group) => {
+        return Math.ceil(groupedShelves[group].length / numColumns)
+      },
+      width: 620,
+    }
+  } else if (isSm) {
+    numColumns = 2
+    screenSize = {
+      columnCount: 2,
+      columnWidth: 200,
+      height: 720, // Altura total do grid
+      rowCount: (group) => {
+        return Math.ceil(groupedShelves[group].length / numColumns)
+      },
+      width: 420,
+    }
+  } else {
+    numColumns = 2
+    screenSize = {
+      columnCount: 2,
+      columnWidth: 160,
+      height: 720,
+      rowCount: (group) => {
+        return Math.ceil(groupedShelves[group].length / numColumns)
+      },
+      width: 480,
+    }
+  }
+
+  const renderCell = (group: string) =>
+    function CellRenderer({ columnIndex, rowIndex, style }: GridChildComponentProps) {
+      // Nomeando a função aqui
+      const index = rowIndex * numColumns + columnIndex
+      const shelf = groupedShelves[group][index]
+
+      if (!shelf) return null
+
+      return (
+        <Flex style={style} key={index}>
+          <ShelfCard shelfData={shelf} />
+        </Flex>
+      )
+    }
+
+  return data ? (
     <Stack direction="column" w="100%" p={{ base: 0, md: 8 }}>
-      <Text fontSize={50}>Prateleiras</Text>
+      {/* <Text fontSize={50}>Prateleiras</Text> */}
       <Accordion allowMultiple overflow="auto">
-        {Object.keys(groupedShelves).map((group) => (
-          <AccordionItem key={group} transition="all 2s ease">
-            <AccordionButton>
-              <Box flex="1" textAlign="left">
-                Grupo {group}
-              </Box>
-              <AccordionIcon />
-            </AccordionButton>
-            <AccordionPanel p={0}>
-              <Grid
-                // w="100%"
-                templateColumns={[
-                  'repeat(2, 1fr)',
-                  'repeat(3, 1fr)',
-                  'repeat(4, 1fr)',
-                  'repeat(6, 1fr)',
-                  'repeat(7, 1fr)',
-                  'repeat(8, 1fr)',
-                ]}
-                p={2}
-                my={2}
-                gap={4}
-              >
-                {groupedShelves[group].map((shelf) => (
-                  <ShelfCard key={shelf.shelfCod} shelfData={shelf} />
-                ))}
-              </Grid>
-            </AccordionPanel>
-          </AccordionItem>
-        ))}
+        {memoizedGroupedShelves &&
+          memoizedGroupedShelves.map((group) => (
+            <AccordionItem key={group} transition="all 2s ease">
+              <AccordionButton>
+                <Box flex="1" textAlign="left">
+                  {group}
+                </Box>
+                <AccordionIcon />
+              </AccordionButton>
+              <AccordionPanel p={0} align="center">
+                <Grid
+                  columnCount={screenSize.columnCount} // Número de colunas
+                  columnWidth={screenSize.columnWidth} // Largura de cada item no grid (ajuste conforme necessário)
+                  height={screenSize.height} // Altura total do grid
+                  rowCount={screenSize.rowCount(group)} // Número de linhas
+                  rowHeight={140} // Altura de cada linha
+                  width={screenSize.width} // Largura total do grid
+                  style={{}}
+                >
+                  {renderCell(group)}
+                </Grid>
+              </AccordionPanel>
+            </AccordionItem>
+          ))}
       </Accordion>
+      {/* O FLEX ABAIXO É PARA ADICIONAR UM BUTTON DE SCROLL DEPOIS
+      <Flex w="100%" justify="end">
+        {showScrollButton && (
+          <Button
+            onClick={scrollToTop}
+            w="40px"
+            h="40px"
+            p={0}
+            colorScheme="blue"
+            borderRadius="full"
+            position="fixed"
+            bottom="60px"
+            right="24px"
+          >
+            <IoMdArrowRoundUp size={24} />
+          </Button>
+        )}
+      </Flex> */}
       {/* <ShelfCard shelfData={shelfDataArray} /> */}
     </Stack>
+  ) : (
+    <Flex flex="1" direction="column" align="center" justify="center" gap={2}>
+      <Image alt="loading" src="/img/undraw_Loading.png" width={401} height={430} />
+      <Text fontWeight="bold">Carregando...</Text>
+      <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" />
+    </Flex>
   )
 }
 
 // Função para definir o grupo baseado no prefixo da shelf
 function getGroupByShelfCod(shelfCod: string): string {
   const prefix = shelfCod.charAt(0).toUpperCase() // Pega o primeiro caractere
-  if (['A', 'B', 'C'].includes(prefix)) return 'ABC'
-  if (['D', 'E', 'F'].includes(prefix)) return 'DEF'
-  if (['G', 'H', 'I'].includes(prefix)) return 'GHI'
+  if (['A', 'B', 'C'].includes(prefix)) return 'A / B / C'
+  if (['D', 'E', 'F'].includes(prefix)) return 'D / E / F'
+  if (['G', 'H', 'I'].includes(prefix)) return 'G / H / I'
+  if (['J'].includes(prefix)) return 'J'
+  if (['P'].includes(prefix)) return 'P'
   // Adicionar outros grupos conforme necessário
   return 'OUTROS' // Para estantes fora desses grupos
 }
 
 // Função para agrupar as shelves
-function groupShelves(shelfDataArray: ShelfData[]) {
+function groupShelves(shelfDataArray: ShelfCodProps[]) {
   return shelfDataArray.reduce(
     (groups, shelf) => {
-      const groupKey = getGroupByShelfCod(shelf.shelfCod)
+      const groupKey = getGroupByShelfCod(shelf.codPrat)
 
       if (!groups[groupKey]) {
         groups[groupKey] = []
@@ -153,6 +256,6 @@ function groupShelves(shelfDataArray: ShelfData[]) {
       groups[groupKey].push(shelf)
       return groups
     },
-    {} as Record<string, ShelfData[]>,
+    {} as Record<string, ShelfCodProps[]>,
   )
 }

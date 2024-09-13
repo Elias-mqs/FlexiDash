@@ -1,23 +1,25 @@
+import React from 'react'
+
 import { Flex, Card, CardHeader, CardBody, Progress, Text } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { IoSearch } from 'react-icons/io5'
 
-import { ShelfData } from '@/app/(authenticated)/modules/(modules)/estoque/inventario/shelf/page'
+import { ShelfCodProps } from '@/app/(authenticated)/modules/(modules)/estoque/inventario/shelf/page'
 
-export function ShelfCard({ shelfData }: { shelfData: ShelfData }) {
+const ShelfCard = React.memo(({ shelfData }: { shelfData: ShelfCodProps }) => {
   const textColor = '#a0a0a0'
 
   const router = useRouter()
 
-  const urlPush = '/modules/estoque/inventario/shelf/shelfDetails/shelfDetails?descpra=A01/01&armaz=01&doc=03082024'
+  const urlPush = `/modules/estoque/inventario/shelf/shelfDetails/list?codShelf=${shelfData.codPrat}`
 
   return (
-    <Flex>
-      <Card p="1rem" w="100%" bg="#f9f9f9" cursor="pointer" onClick={() => router.push(urlPush)}>
+    <Flex w="100%" m={1} onClick={() => router.push(urlPush)}>
+      <Card p="1rem" w="100%" bg="#f9f9f9" cursor="pointer">
         <CardHeader p="6px 5px">
-          <Flex gap={6}>
+          <Flex justify="space-between">
             <Text fontSize="md" color={textColor} fontWeight="bold">
-              {shelfData.shelfCod}
+              {shelfData.codPrat}
             </Text>
             <IoSearch size="20px" />
           </Flex>
@@ -30,7 +32,7 @@ export function ShelfCard({ shelfData }: { shelfData: ShelfData }) {
                   F:
                 </Text>
                 <Text fontSize="sm" color="gray.500" fontWeight="400">
-                  {shelfData.Done}
+                  8
                 </Text>
               </Flex>
 
@@ -39,18 +41,22 @@ export function ShelfCard({ shelfData }: { shelfData: ShelfData }) {
                   T:
                 </Text>
                 <Text fontSize="sm" color="gray.500" fontWeight="400">
-                  {shelfData.Total}
+                  10
                 </Text>
               </Flex>
             </Flex>
 
-            <Progress colorScheme="green" value={shelfData.progress} size="sm" />
-            <Text fontSize="sm" color={textColor} fontWeight="bold" mr="5px">
-              {shelfData.progress}%
+            <Progress align="start" colorScheme="green" value={60} size="sm" />
+            <Text align="start" fontSize="sm" color={textColor} fontWeight="bold" mr="5px" mt={1}>
+              80%
             </Text>
           </Flex>
         </CardBody>
       </Card>
     </Flex>
   )
-}
+})
+
+ShelfCard.displayName = 'ShelfCard'
+
+export { ShelfCard }

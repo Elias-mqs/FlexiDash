@@ -1,120 +1,128 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-
-import { Flex, Grid, Input, Text } from '@chakra-ui/react'
+import { Flex, Grid, Input, Spinner, Text } from '@chakra-ui/react'
+import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
 
 import { ShelfItems } from '@/components/ui/Inventory'
-import { getItems } from '@/utils/actions/get-data'
+import { api, FormsCrypt } from '@/services'
 
-interface ItemsProps {
-  codigo: string
-  desc: string
-  quant: string
+export type ShelfDetailsProps = {
+  codProd: string
+  descProd: string
+  qtdAtual: number
+}
+
+const fetchShelfDetails = async (descPra: string) => {
+  if (!descPra) {
+    return false
+  }
+
+  const dataCrypt = FormsCrypt.dataCrypt(descPra)
+
+  try {
+    const res = await api.post('modules/stock/inventory/shelfDetails', dataCrypt)
+
+    const shelfDetails: ShelfDetailsProps[] = FormsCrypt.verifyData(res.data)
+
+    return shelfDetails
+  } catch (error) {
+    console.error(error)
+    throw new Error('Error fetching shelf details')
+  }
 }
 
 export default function ShelfDetails() {
+  console.log('renderizando')
   const searchParams = useSearchParams()
-  const [items, setItems] = useState<ItemsProps[]>([])
 
-  const detailsParams = {
-    descPra: searchParams.get('descpra'),
-    armaz: searchParams.get('armaz'),
-    document: searchParams.get('doc'),
+  const descPra = searchParams.get('codShelf')
+
+  const { data: shelfDetails } = useQuery({
+    queryKey: ['detail-shelf', descPra!],
+    queryFn: () => fetchShelfDetails(descPra!),
+    enabled: !!descPra, // Somente ativa a query se descPra existir
+    refetchOnWindowFocus: false,
+  })
+
+  console.log('teste: ', shelfDetails)
+
+  if (!descPra) {
+    return (
+      <Flex w="100%" justify="start" align="center" direction="column" mt={8} gap={{ base: 8, sm: 0 }}>
+        <Image alt="Data not found" src="/img/undraw-not-found.png" width={550} height={365} />
+        <Flex maxW="container.md" direction="column" px={2}>
+          <Text
+            fontFamily="cursive"
+            fontSize={{ base: 22, sm: 28 }}
+            fontWeight={600}
+            color="#7d7d7d"
+            textAlign="center"
+          >
+            Oops! Não estamos encontrando as informações.
+          </Text>
+          <Text
+            fontFamily="cursive"
+            fontSize={{ base: 22, sm: 28 }}
+            fontWeight={600}
+            color="#7d7d7d"
+            textAlign="center"
+          >
+            Verifique os dados e tente novamente.
+          </Text>
+        </Flex>
+      </Flex>
+    )
   }
 
-  const verifyData: boolean = true
-
-  useEffect(() => {
-    async function getData() {
-      if (!detailsParams.armaz || !detailsParams.descPra || !detailsParams.document) {
-        return
-      }
-      const data = await getItems(detailsParams)
-      // Apenas atualize o estado se os novos dados forem diferentes
-      if (JSON.stringify(data) !== JSON.stringify(items)) {
-        setItems(data.itens)
-      }
-    }
-    getData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  if (!shelfDetails) {
+    return (
+      <Flex flex="1" direction="column" align="center" justify="center" gap={2}>
+        <Image alt="loading" src="/img/undraw_Loading.png" width={401} height={430} priority />
+        <Text fontWeight="bold">Carregando...</Text>
+        <Spinner mt={2} thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" />
+      </Flex>
+    )
+  }
 
   return (
-    <>
-      {!verifyData && (
-        <Flex
-          w="100%"
-          justify="start"
-          align="center"
-          direction="column"
-          mt={{ base: 8, sm: 0 }}
-          gap={{ base: 8, sm: 0 }}
-        >
-          <Image alt="Data not found" src="/img/searching.png" width={400} height={300} />
-          <Flex maxW="container.md" direction="column" px={2}>
-            <Text
-              fontFamily="cursive"
-              fontSize={{ base: 22, sm: 28 }}
-              fontWeight={600}
-              color="#7d7d7d"
-              textAlign="center"
-            >
-              Oops! Não estamos encontrando as informações.
-            </Text>
-            <Text
-              fontFamily="cursive"
-              fontSize={{ base: 22, sm: 28 }}
-              fontWeight={600}
-              color="#7d7d7d"
-              textAlign="center"
-            >
-              Verifique os dados e tente novamente.
+    <Flex w="100%" direction="column">
+      <Flex w="100%" justify={{ base: 'center', sm: 'end' }} p={4}>
+        <Input w="300px" size="md" focusBorderColor="blue.300" placeholder="Pesquisar" color="gray.500" />
+      </Flex>
+
+      <Flex direction="column" overflowX="auto">
+        <Grid templateColumns="2fr 4fr 1fr 1fr" gap={4} px={4} py={4} mx={2} minW="container.lg">
+          <Flex>
+            <Text fontWeight={600} fontSize={14} color="#829abf">
+              CÓDIGO
             </Text>
           </Flex>
-        </Flex>
-      )}
-      {verifyData && (
-        <Flex w="100%" direction="column">
-          <Flex w="100%" justify={{ base: 'center', sm: 'end' }} p={4}>
-            <Input w="300px" size="md" focusBorderColor="blue.300" placeholder="Pesquisar" color="gray.500" />
+
+          <Flex>
+            <Text fontWeight={600} fontSize={14} color="#829abf">
+              DESCRIÇÃO
+            </Text>
           </Flex>
 
-          <Flex direction="column" overflowX="auto">
-            <Grid templateColumns="2fr 4fr 1fr 1fr 1fr" gap={4} px={4} py={4} mx={2} minW="container.lg">
-              <Flex>
-                <Text fontWeight={600} fontSize={14} color="#829abf">
-                  CÓDIGO
-                </Text>
-              </Flex>
+          {/* <Flex px={8}>
+            <Text fontWeight={600} fontSize={14} color="#829abf">
+              QTD
+            </Text>
+          </Flex> */}
 
-              <Flex>
-                <Text fontWeight={600} fontSize={14} color="#829abf">
-                  DESCRIÇÃO
-                </Text>
-              </Flex>
-
-              <Flex px={8}>
-                <Text fontWeight={600} fontSize={14} color="#829abf">
-                  QTD
-                </Text>
-              </Flex>
-
-              <Flex>
-                <Text fontWeight={600} fontSize={14} color="#829abf">
-                  STATUS
-                </Text>
-              </Flex>
-            </Grid>
-
-            {items.map((data, index) => (
-              <ShelfItems key={index} itens={data} />
-            ))}
+          <Flex>
+            <Text pl={2} fontWeight={600} fontSize={14} color="#829abf">
+              STATUS
+            </Text>
           </Flex>
-        </Flex>
-      )}
-    </>
+        </Grid>
+
+        {shelfDetails.map((data, index) => (
+          <ShelfItems key={index} items={data} />
+        ))}
+      </Flex>
+    </Flex>
   )
 }

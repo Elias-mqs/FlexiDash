@@ -10,21 +10,21 @@ export function Sidebar() {
 
   return (
     <Flex
-      h={{ base: '220px', sm: '100vh' }}
-      w={{ base: '100%', sm: isExpanded ? '200px' : '70px' }}
+      h={{ base: '220px', md: '100vh' }}
+      w={{ base: '100%', md: isExpanded ? '200px' : '70px' }}
       maxW={{ base: 'calc(100vw - 32px)' }}
-      maxH={{ base: isExpanded ? '220px' : '0px', sm: '100%' }}
+      maxH={{ base: isExpanded ? '220px' : '0px', md: '100%' }}
       align="center"
       transition="width 0.5s ease, max-height 0.5s ease"
       position="absolute"
       direction="column"
       gap={2}
-      borderRight={{ base: 'none', sm: '2px solid #d0d0d0' }}
+      borderRight={{ base: 'none', md: '2px solid #d0d0d0' }}
     >
       <Button
         position="absolute"
-        top={{ base: isExpanded ? '220px' : '10px', sm: '10px' }}
-        right={{ base: '0px', sm: '-33px' }}
+        top={{ base: isExpanded ? '220px' : '10px', md: '10px' }}
+        right={{ base: '0px', md: '-33px' }}
         w="30px"
         h="30px"
         minW="30px"
@@ -37,7 +37,7 @@ export function Sidebar() {
         <Icon as={GiHamburgerMenu} fontSize={14} />
       </Button>
 
-      <Flex direction="column" overflow="hidden" w="100%" gap={8} mt={{ base: 2, sm: 8 }} px={{ base: 0, sm: 4 }}>
+      <Flex direction="column" overflow="hidden" w="100%" gap={8} mt={{ base: 2, md: 8 }} px={{ base: 0, md: 4 }}>
         {/* Substitua por itens de menu reais */}
         <Button h="35px" minH="35px" colorScheme="blue">
           Button 1

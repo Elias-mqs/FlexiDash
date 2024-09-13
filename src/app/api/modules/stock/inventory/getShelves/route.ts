@@ -1,11 +1,17 @@
 import { NextResponse } from 'next/server'
 
+interface ListShelvesProps {
+  listPrat: {
+    codPrat: string
+  }[]
+}
+
 export async function GET() {
   const urlFetch = process.env.ENDPOINT_GET_SHELVES
   try {
-    const res = await fetch(`${urlFetch}`, { method: 'GET' })
+    const res = await fetch(`${urlFetch}`, { method: 'GET', cache: 'force-cache' })
 
-    const { listPrat: listShelves } = await res.json()
+    const { listPrat: listShelves }: ListShelvesProps = await res.json()
 
     return NextResponse.json({ listShelves }, { status: 200 })
   } catch (error) {
