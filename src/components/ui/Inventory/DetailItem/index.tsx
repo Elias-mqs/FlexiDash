@@ -11,49 +11,86 @@ import {
   Text,
 } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { RefetchOptions, QueryObserverResult } from '@tanstack/react-query'
 import { useForm, Controller } from 'react-hook-form'
 import { FaRegEdit, FaCheck } from 'react-icons/fa'
 import { RiCloseLine } from 'react-icons/ri'
 import { z } from 'zod'
 
-import { ShelfDetailsProps } from '@/app/(authenticated)/modules/(modules)/estoque/inventario/shelf/shelfDetails/[shelfDetails]/page'
-import { FormsCrypt } from '@/services'
+import {
+  ShelfDetailsB7Props,
+  ShelfDetailsProps,
+} from '@/app/(authenticated)/modules/(modules)/estoque/inventario/shelf/shelfDetails/[shelfDetails]/page'
+import { api, FormsCrypt } from '@/services'
 
-const updateShelfSchema = z.object({
-  qtdCount: z.coerce.number(),
-})
-
-export const DetailItem = ({
-  items,
-  isOpen,
-  onClose,
-  setStatusCount,
-}: {
+interface DetailItemProps {
   items: ShelfDetailsProps
+  existingItems: ShelfDetailsB7Props
   isOpen: boolean
   onClose: () => void
-  setStatusCount: (data: string) => void
-}) => {
+  refetch: (options?: RefetchOptions) => Promise<
+    QueryObserverResult<
+      | false
+      | {
+          shelfDetails: ShelfDetailsProps[]
+          searchProdExist: (ShelfDetailsB7Props | undefined)[]
+        },
+      Error
+    >
+  >
+}
+
+const updateShelfSchema = z.object({
+  qtdCount: z.string(),
+})
+
+export const DetailItem = ({ items, existingItems, isOpen, onClose, refetch }: DetailItemProps) => {
   const toast = useToast()
 
-  const { control, handleSubmit, setValue } = useForm<{ qtdCount: number | string }>({
+  console.log('items:', items)
+  console.log('existingItems:', existingItems)
+
+  const { control, handleSubmit, resetField } = useForm<{ qtdCount: number | string }>({
     resolver: zodResolver(updateShelfSchema),
     defaultValues: { qtdCount: '' },
   })
 
-  const handleUpdateShelf = (data: { qtdCount: number | string }) => {
-    console.log(data)
-    if (data.qtdCount !== items.qtdAtual) {
-      setStatusCount('Revisar')
-      onClose()
+  const handleUpdateShelf = async (data: { qtdCount: number | string }) => {
+    if (!data || !data.qtdCount) {
+      toast({
+        title: 'Atenção',
+        description: 'Informe um valor válido',
+        status: 'info',
+        position: 'top',
+        duration: 2000,
+        isClosable: true,
+      })
       return
     }
-    const formCrypt = FormsCrypt.dataCrypt({ ...data, descProd: items.descProd, codProd: items.codProd })
+
+    const qtdCount = Number(data.qtdCount)
+
+    const formCrypt =
+      !existingItems || !existingItems.qtdProd
+        ? FormsCrypt.dataCrypt({ qtdCount, codProd: items.codProd, newRegister: true })
+        : FormsCrypt.dataCrypt({ qtdCount, codProd: items.codProd, newRegister: false })
 
     try {
-      console.log(formCrypt)
-      setStatusCount('Conferido')
+      const res = await api.post('modules/stock/inventory/updateItemShelf', formCrypt)
+
+      console.log(res.data)
+      refetch()
+      resetField('qtdCount')
       onClose()
+
+      toast({
+        title: 'Produto atualizado',
+        description: 'Verifique o status',
+        status: 'success',
+        position: 'top',
+        duration: 2000,
+        isClosable: true,
+      })
     } catch (error) {
       console.error('Erro interno')
       toast({
@@ -68,7 +105,8 @@ export const DetailItem = ({
   }
 
   const handleClose = () => {
-    setValue('qtdCount', '')
+    resetField('qtdCount')
+    refetch()
     onClose()
   }
 
@@ -139,7 +177,7 @@ export const DetailItem = ({
                         onChange={onChange}
                         type="number"
                         maxW="120px"
-                        placeholder="Ex: 10"
+                        placeholder={existingItems ? `${existingItems.qtdProd}` : 'Ex: 10'}
                         maxLength={9}
                         fontWeight={500}
                         color="gray.500"

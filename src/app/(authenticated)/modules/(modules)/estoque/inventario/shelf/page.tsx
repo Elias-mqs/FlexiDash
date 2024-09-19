@@ -52,8 +52,8 @@ export default function ShelfInv() {
         console.error(error)
       }
     },
-    gcTime: 0,
-    staleTime: 0,
+    gcTime: 4 * 60 * 60 * 1000,
+    staleTime: 4 * 60 * 60 * 1000,
     refetchOnWindowFocus: false,
   })
 

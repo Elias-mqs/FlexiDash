@@ -1,51 +1,30 @@
-import { useState } from 'react'
-
 import { Flex, Grid, Input, Text, useDisclosure } from '@chakra-ui/react'
-import { useQuery } from '@tanstack/react-query'
+import { RefetchOptions, QueryObserverResult } from '@tanstack/react-query'
 
-import { ShelfDetailsProps } from '@/app/(authenticated)/modules/(modules)/estoque/inventario/shelf/shelfDetails/[shelfDetails]/page'
-import { api, FormsCrypt } from '@/services'
+import {
+  ShelfDetailsB7Props,
+  ShelfDetailsProps,
+} from '@/app/(authenticated)/modules/(modules)/estoque/inventario/shelf/shelfDetails/[shelfDetails]/page'
 
 import { DetailItem } from '../DetailItem'
 
-export function ShelfItems({ items }: { items: ShelfDetailsProps }) {
-  console.log('=========== renderizando ShelfItems ============')
+interface ShelfItemsProps {
+  items: ShelfDetailsProps
+  existingItems: ShelfDetailsB7Props
+  refetch: (options?: RefetchOptions) => Promise<
+    QueryObserverResult<
+      | false
+      | {
+          shelfDetails: ShelfDetailsProps[]
+          searchProdExist: (ShelfDetailsB7Props | undefined)[]
+        },
+      Error
+    >
+  >
+}
+
+export function ShelfItems({ items, existingItems, refetch }: ShelfItemsProps) {
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const [statusCount, setStatusCount] = useState<string>('Conferir')
-
-  const { data } = useQuery({
-    queryKey: ['status-shelf'],
-    queryFn: async () => {
-      const dataCrypt = FormsCrypt.dataCrypt(items)
-      try {
-        const res = await api.post('modules/stock/inventory/updateItemShelf', dataCrypt)
-        console.log(res)
-        return res.data
-      } catch (error) {
-        console.error('Erro interno - contate a TI (ShelfItems)')
-      }
-    },
-  })
-
-  console.log(data)
-
-  const updateStatus = (data: string) => {
-    setStatusCount(data)
-  }
-
-  console.log(items)
-
-  let colorStatus: string = 'yellow'
-  let textColorStatus: string = '#757575'
-
-  if (statusCount === 'Revisar') {
-    colorStatus = 'red'
-    textColorStatus = '#fff'
-  }
-  if (statusCount === 'Conferido') {
-    colorStatus = 'green'
-    textColorStatus = '#fff'
-  }
 
   return (
     <Grid
@@ -78,23 +57,19 @@ export function ShelfItems({ items }: { items: ShelfDetailsProps }) {
         />
       </Flex>
 
-      {/* <Flex overflow="hidden" minH="30px" maxH="50px" align="center" px={8} py={0}>
-        <Input
-          title="qtd"
-          minW="50px"
-          type="number"
-          variant="unstyled"
-          placeholder={String(qtdCount)}
-          onChange={(e) => e.target.value}
-          color={items.qtdAtual === qtdCount ? 'red' : 'gray.500'}
-          _placeholder={{ color: items.qtdAtual === qtdCount || qtdCount === '-' ? 'gray.500' : 'red' }}
-        />
-      </Flex> */}
-
       <Flex overflow="hidden" minH="30px" maxH="50px" align="center" gap={2}>
-        {/* <Icon as={iconsStatus} boxSize={5} color="black" bg="yellow" /> */}
-        <Text wordBreak="break-word" fontWeight={500} color={textColorStatus} bg={colorStatus} px={3} py={0.5} borderRadius="1rem">
-          {statusCount}
+        <Text
+          w="96px"
+          wordBreak="break-word"
+          textAlign="center"
+          fontWeight={500}
+          color={items.textColorStatus}
+          bg={items.colorStatus}
+          px={3}
+          py={0.5}
+          borderRadius="1rem"
+        >
+          {items.currentStatus}
         </Text>
       </Flex>
 
@@ -110,7 +85,7 @@ export function ShelfItems({ items }: { items: ShelfDetailsProps }) {
         </Text>
       </Flex>
 
-      <DetailItem items={items} isOpen={isOpen} onClose={onClose} setStatusCount={updateStatus} />
+      <DetailItem items={items} existingItems={existingItems} isOpen={isOpen} onClose={onClose} refetch={refetch} />
     </Grid>
   )
 }

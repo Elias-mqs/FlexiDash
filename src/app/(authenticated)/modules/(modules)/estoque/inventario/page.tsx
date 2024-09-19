@@ -6,6 +6,7 @@ import { FaCogs, FaArchive } from 'react-icons/fa'
 import { IconType } from 'react-icons/lib'
 
 import { ScreenCardResource } from '@/components/ui'
+import InventoryProvider from '@/context/Inventory/InventoryContext'
 import { useAccessUser } from '@/context/SystemLists/AccessUserContext'
 
 const resourceDetails: Record<string, { icon: IconType; route: string }> = {
@@ -20,25 +21,27 @@ export default function HomeInventory() {
   const resourceList = useListResource()
 
   return (
-    <Flex w="100%" direction="column" p={4} overflow="auto">
-      <Grid
-        templateColumns={{ base: 'repeat(1, 1fr)', sm: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' }}
-        gap={8}
-        px={{ base: 0 }}
-      >
-        {resourceList?.map((resource) => {
-          const resourceName = resource?.sis_recurso_rotina?.nome
-          const { icon } = resourceDetails[resourceName] || {}
-          return (
-            <ScreenCardResource
-              key={resource.id}
-              icon={icon}
-              title={resourceName}
-              route={resource.sis_recurso_rotina?.slug}
-            />
-          )
-        })}
-      </Grid>
-    </Flex>
+    <InventoryProvider>
+      <Flex w="100%" direction="column" p={4} overflow="auto">
+        <Grid
+          templateColumns={{ base: 'repeat(1, 1fr)', sm: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' }}
+          gap={8}
+          px={{ base: 0 }}
+        >
+          {resourceList?.map((resource) => {
+            const resourceName = resource?.sis_recurso_rotina?.nome
+            const { icon } = resourceDetails[resourceName] || {}
+            return (
+              <ScreenCardResource
+                key={resource.id}
+                icon={icon}
+                title={resourceName}
+                route={resource.sis_recurso_rotina?.slug}
+              />
+            )
+          })}
+        </Grid>
+      </Flex>
+    </InventoryProvider>
   )
 }

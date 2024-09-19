@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import { CloseInventory, StartInventory } from '@/components/ui/Modules/Estoque/Inventario'
 import { api } from '@/services'
 
-interface InventoryData {
+export interface InventoryData {
   status: boolean | undefined
   document: string
   armaz: string

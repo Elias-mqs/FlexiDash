@@ -41,12 +41,12 @@ const ShelfCard = React.memo(({ shelfData }: { shelfData: ShelfCodProps }) => {
                   T:
                 </Text>
                 <Text fontSize="sm" color="gray.500" fontWeight="400">
-                  10
+                  8
                 </Text>
               </Flex>
             </Flex>
 
-            <Progress align="start" colorScheme="green" value={60} size="sm" />
+            <Progress align="start" colorScheme="green" value={80} size="sm" />
             <Text align="start" fontSize="sm" color={textColor} fontWeight="bold" mr="5px" mt={1}>
               80%
             </Text>

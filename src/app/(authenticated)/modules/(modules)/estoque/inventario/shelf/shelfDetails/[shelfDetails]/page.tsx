@@ -12,6 +12,14 @@ export type ShelfDetailsProps = {
   codProd: string
   descProd: string
   qtdAtual: number
+  currentStatus: string
+  colorStatus: string
+  textColorStatus: string
+}
+
+export type ShelfDetailsB7Props = {
+  codProd: string
+  qtdProd: number
 }
 
 const fetchShelfDetails = async (descPra: string) => {
@@ -19,14 +27,17 @@ const fetchShelfDetails = async (descPra: string) => {
     return false
   }
 
-  const dataCrypt = FormsCrypt.dataCrypt(descPra)
-
   try {
+    const dataCrypt = FormsCrypt.dataCrypt(descPra)
+
     const res = await api.post('modules/stock/inventory/shelfDetails', dataCrypt)
 
-    const shelfDetails: ShelfDetailsProps[] = FormsCrypt.verifyData(res.data)
+    const {
+      shelfDetails,
+      searchProdExist,
+    }: { shelfDetails: ShelfDetailsProps[]; searchProdExist: ShelfDetailsB7Props[] } = FormsCrypt.verifyData(res.data)
 
-    return shelfDetails
+    return { shelfDetails, searchProdExist }
   } catch (error) {
     console.error(error)
     throw new Error('Error fetching shelf details')
@@ -34,19 +45,16 @@ const fetchShelfDetails = async (descPra: string) => {
 }
 
 export default function ShelfDetails() {
-  console.log('renderizando')
   const searchParams = useSearchParams()
 
   const descPra = searchParams.get('codShelf')
 
-  const { data: shelfDetails } = useQuery({
+  const { data: shelfDetails, refetch } = useQuery({
     queryKey: ['detail-shelf', descPra!],
     queryFn: () => fetchShelfDetails(descPra!),
     enabled: !!descPra, // Somente ativa a query se descPra existir
     refetchOnWindowFocus: false,
   })
-
-  console.log('teste: ', shelfDetails)
 
   if (!descPra) {
     return (
@@ -119,8 +127,8 @@ export default function ShelfDetails() {
           </Flex>
         </Grid>
 
-        {shelfDetails.map((data, index) => (
-          <ShelfItems key={index} items={data} />
+        {shelfDetails.shelfDetails.map((data, index) => (
+          <ShelfItems key={index} items={data} existingItems={shelfDetails.searchProdExist[index]!} refetch={refetch} />
         ))}
       </Flex>
     </Flex>
