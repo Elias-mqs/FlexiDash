@@ -1,29 +1,24 @@
 import { Flex, Grid, Input, Text, useDisclosure } from '@chakra-ui/react'
 import { RefetchOptions, QueryObserverResult } from '@tanstack/react-query'
 
-import {
-  ShelfDetailsB7Props,
-  ShelfDetailsProps,
-} from '@/app/(authenticated)/modules/(modules)/estoque/inventario/shelf/shelfDetails/[shelfDetails]/page'
+import { ShelfDetailsProps } from '@/app/(authenticated)/modules/(modules)/estoque/inventario/shelf/shelfDetails/[shelfDetails]/page'
 
 import { DetailItem } from '../DetailItem'
 
 interface ShelfItemsProps {
   items: ShelfDetailsProps
-  existingItems: ShelfDetailsB7Props
   refetch: (options?: RefetchOptions) => Promise<
     QueryObserverResult<
       | false
       | {
           shelfDetails: ShelfDetailsProps[]
-          searchProdExist: (ShelfDetailsB7Props | undefined)[]
         },
       Error
     >
   >
 }
 
-export function ShelfItems({ items, existingItems, refetch }: ShelfItemsProps) {
+export function ShelfItems({ items, refetch }: ShelfItemsProps) {
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   return (
@@ -85,7 +80,7 @@ export function ShelfItems({ items, existingItems, refetch }: ShelfItemsProps) {
         </Text>
       </Flex>
 
-      <DetailItem items={items} existingItems={existingItems} isOpen={isOpen} onClose={onClose} refetch={refetch} />
+      <DetailItem items={items} isOpen={isOpen} onClose={onClose} refetch={refetch} />
     </Grid>
   )
 }

@@ -17,15 +17,11 @@ import { FaRegEdit, FaCheck } from 'react-icons/fa'
 import { RiCloseLine } from 'react-icons/ri'
 import { z } from 'zod'
 
-import {
-  ShelfDetailsB7Props,
-  ShelfDetailsProps,
-} from '@/app/(authenticated)/modules/(modules)/estoque/inventario/shelf/shelfDetails/[shelfDetails]/page'
+import { ShelfDetailsProps } from '@/app/(authenticated)/modules/(modules)/estoque/inventario/shelf/shelfDetails/[shelfDetails]/page'
 import { api, FormsCrypt } from '@/services'
 
 interface DetailItemProps {
   items: ShelfDetailsProps
-  existingItems: ShelfDetailsB7Props
   isOpen: boolean
   onClose: () => void
   refetch: (options?: RefetchOptions) => Promise<
@@ -33,7 +29,6 @@ interface DetailItemProps {
       | false
       | {
           shelfDetails: ShelfDetailsProps[]
-          searchProdExist: (ShelfDetailsB7Props | undefined)[]
         },
       Error
     >
@@ -44,17 +39,17 @@ const updateShelfSchema = z.object({
   qtdCount: z.string(),
 })
 
-export const DetailItem = ({ items, existingItems, isOpen, onClose, refetch }: DetailItemProps) => {
+export const DetailItem = ({ items, isOpen, onClose, refetch }: DetailItemProps) => {
   const toast = useToast()
-
-  console.log('items:', items)
-  console.log('existingItems:', existingItems)
 
   const { control, handleSubmit, resetField } = useForm<{ qtdCount: number | string }>({
     resolver: zodResolver(updateShelfSchema),
-    defaultValues: { qtdCount: '' },
+    defaultValues: { qtdCount: items.qtdB7 || items.qtdB7 === 0 ? items.qtdB7 : '' },
   })
 
+  /// /////////////////////////////////////////////////////////////////////////////////////////////////
+  /// /////////////////// Atualiza o campo quantidade no modal de alteração do item ///////////////////
+  /// /////////////////////////////////////////////////////////////////////////////////////////////////
   const handleUpdateShelf = async (data: { qtdCount: number | string }) => {
     if (!data || !data.qtdCount) {
       toast({
@@ -70,15 +65,15 @@ export const DetailItem = ({ items, existingItems, isOpen, onClose, refetch }: D
 
     const qtdCount = Number(data.qtdCount)
 
+    /// Se o item ja foi lançado ele atualiza
     const formCrypt =
-      !existingItems || !existingItems.qtdProd
+      !items.qtdB7 && items.qtdB7 !== 0
         ? FormsCrypt.dataCrypt({ qtdCount, codProd: items.codProd, newRegister: true })
         : FormsCrypt.dataCrypt({ qtdCount, codProd: items.codProd, newRegister: false })
 
     try {
-      const res = await api.post('modules/stock/inventory/updateItemShelf', formCrypt)
+      await api.post('modules/stock/inventory/updateItemShelf', formCrypt)
 
-      console.log(res.data)
       refetch()
       resetField('qtdCount')
       onClose()
@@ -142,7 +137,7 @@ export const DetailItem = ({ items, existingItems, isOpen, onClose, refetch }: D
                 placeholder={items.descProd}
                 maxLength={9}
                 fontWeight={500}
-                color="gray.500"
+                _placeholder={{ color: 'gray.600' }}
                 boxShadow="0px 0px 1px .5px rgba(0, 0, 0, 0.05)"
                 readOnly
               />
@@ -158,7 +153,7 @@ export const DetailItem = ({ items, existingItems, isOpen, onClose, refetch }: D
                   readOnly
                   maxLength={9}
                   fontWeight={500}
-                  color="gray.500"
+                  _placeholder={{ color: 'gray.600' }}
                   boxShadow="0px 0px 1px .5px rgba(0, 0, 0, 0.05)"
                 />
               </Flex>
@@ -177,10 +172,11 @@ export const DetailItem = ({ items, existingItems, isOpen, onClose, refetch }: D
                         onChange={onChange}
                         type="number"
                         maxW="120px"
-                        placeholder={existingItems ? `${existingItems.qtdProd}` : 'Ex: 10'}
+                        placeholder={items.qtdB7 || items.qtdB7 === 0 ? `${items.qtdB7}` : 'Ex: 10'}
                         maxLength={9}
                         fontWeight={500}
-                        color="gray.500"
+                        color="gray.700"
+                        _placeholder={{ color: items.qtdB7 || items.qtdB7 === 0 ? 'gray.400' : 'gray.300' }}
                         boxShadow="0px 0px 1px .5px rgba(0, 0, 0, 0.05)"
                       />
                     </Flex>

@@ -22,16 +22,14 @@ interface ResSqlSuccessProps {
 
 export async function POST(request: NextRequest) {
   const req = await request.json()
-  const { qtdCount, newRegister, codProd }: RequestProps = FormsCrypt.verifyData(req)
+
   const urlApi = process.env.ENDPOINT_UPDATE_INVENTORY
 
-  if (!qtdCount || !codProd) {
+  const { qtdCount, newRegister, codProd }: RequestProps = FormsCrypt.verifyData(req)
+
+  if ((!qtdCount && qtdCount !== 0) || !codProd) {
     return NextResponse.json({ message: 'Dados mal informados ou inexistentes' }, { status: 400 })
   }
-
-  console.log(req)
-
-  console.log('newRegister:', newRegister ? 'S' : 'N')
 
   try {
     const inventoryData = await dbInventory.invDocument.verifyStatus()
@@ -42,13 +40,7 @@ export async function POST(request: NextRequest) {
 
     const { armazem, documento, dt_ini: dtIni } = inventoryData
 
-    console.log('qtdCount:', qtdCount)
-    console.log('codProd:', codProd)
-    console.log('armazem:', armazem)
-    console.log('documento:', documento)
-    console.log('novo registro:', newRegister ? 'S' : 'N')
-    console.log('date:', formatDate(dtIni))
-
+    /// ///////////////////////// Atualiza/Insere o item na SB7 /////////////////////////////
     const fetchInventory = await fetch(`${urlApi}`, {
       method: 'POST',
       headers: {
@@ -56,7 +48,7 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         nQtdProd: qtdCount,
-        cCodProd: codProd, // Convertendo o objeto para JSON
+        cCodProd: codProd,
         cArmaz: armazem,
         cDocument: documento,
         cInsert: newRegister ? 'S' : 'N',
@@ -66,8 +58,6 @@ export async function POST(request: NextRequest) {
     })
 
     const response: ResSqlSuccessProps | ResSqlErrorProps = await fetchInventory.json()
-
-    console.log(response)
 
     if ('errorCode' in response) {
       throw Error('Erro no fetch addRegisterInventory')

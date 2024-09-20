@@ -35,12 +35,14 @@ interface ScreenProps {
 }
 
 export default function ShelfInv() {
+  /// Definindo as variáveis de tamanhos de tela para a responsividade
   const [isSm] = useMediaQuery('(min-width: 481px) and (max-width: 768px)')
   const [isMd] = useMediaQuery('(min-width: 769px) and (max-width: 992px)')
   const [isLg] = useMediaQuery('(min-width: 993px) and (max-width: 1200px)')
   const [isXl] = useMediaQuery('(min-width: 1201px) and (max-width: 1536px)')
   const [is2xl] = useMediaQuery('(min-width: 1537px)')
 
+  /// Busca a lista de prateleiras
   const { data } = useQuery({
     queryKey: ['get-shelves'],
     queryFn: async () => {
@@ -57,12 +59,14 @@ export default function ShelfInv() {
     refetchOnWindowFocus: false,
   })
 
+  /// Definindo os grupos que ficarão dentro do Accordion
   const groupedShelves = useMemo(() => {
     if (data?.listShelves) {
       return groupShelves(data.listShelves)
     }
   }, [data?.listShelves])
 
+  /// Ordenando a lista de Accordion
   const memoizedGroupedShelves = useMemo(() => {
     if (groupedShelves) {
       return Object.keys(groupedShelves).sort((a, b) => {
@@ -87,7 +91,7 @@ export default function ShelfInv() {
     return
   }
 
-  // Definindo tamanhos de tela para reponsividadde
+  /// Definindo tamanhos de tela para reponsividadde
   let screenSize: ScreenProps
   let numColumns = 5
   if (is2xl) {
@@ -158,6 +162,7 @@ export default function ShelfInv() {
     }
   }
 
+  /// Card que vai renderizar no grid
   const renderCell = (group: string) =>
     function CellRenderer({ columnIndex, rowIndex, style }: GridChildComponentProps) {
       // Nomeando a função aqui

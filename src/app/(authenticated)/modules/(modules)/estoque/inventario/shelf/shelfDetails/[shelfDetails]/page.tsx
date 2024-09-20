@@ -15,13 +15,12 @@ export type ShelfDetailsProps = {
   currentStatus: string
   colorStatus: string
   textColorStatus: string
+  qtdB7: number
 }
 
-export type ShelfDetailsB7Props = {
-  codProd: string
-  qtdProd: number
-}
-
+/// //////////////////////////////////////////////////////////////////////////////////////////////////////
+/// ////////////////// Busca a lista de itens dentro da prateleira informada na URL //////////////////////
+/// //////////////////////////////////////////////////////////////////////////////////////////////////////
 const fetchShelfDetails = async (descPra: string) => {
   if (!descPra) {
     return false
@@ -32,12 +31,9 @@ const fetchShelfDetails = async (descPra: string) => {
 
     const res = await api.post('modules/stock/inventory/shelfDetails', dataCrypt)
 
-    const {
-      shelfDetails,
-      searchProdExist,
-    }: { shelfDetails: ShelfDetailsProps[]; searchProdExist: ShelfDetailsB7Props[] } = FormsCrypt.verifyData(res.data)
+    const { shelfDetails }: { shelfDetails: ShelfDetailsProps[] } = FormsCrypt.verifyData(res.data)
 
-    return { shelfDetails, searchProdExist }
+    return { shelfDetails }
   } catch (error) {
     console.error(error)
     throw new Error('Error fetching shelf details')
@@ -49,6 +45,7 @@ export default function ShelfDetails() {
 
   const descPra = searchParams.get('codShelf')
 
+  /// Chama a busca de itens
   const { data: shelfDetails, refetch } = useQuery({
     queryKey: ['detail-shelf', descPra!],
     queryFn: () => fetchShelfDetails(descPra!),
@@ -122,7 +119,7 @@ export default function ShelfDetails() {
         </Grid>
 
         {shelfDetails.shelfDetails.map((data, index) => (
-          <ShelfItems key={index} items={data} existingItems={shelfDetails.searchProdExist[index]!} refetch={refetch} />
+          <ShelfItems key={index} items={data} refetch={refetch} />
         ))}
       </Flex>
     </Flex>

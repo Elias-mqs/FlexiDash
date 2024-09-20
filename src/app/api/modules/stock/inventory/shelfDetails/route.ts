@@ -26,6 +26,9 @@ interface ResSqlErrorProps {
 export async function POST(request: NextRequest) {
   const data = await request.json()
 
+  const urlApi = process.env.ENDPOINT_SHELF_DETAILS
+  const urlApiStatus = process.env.ENDPOINT_SEARCH_EXIST_ITEM
+
   const descPra = await FormsCrypt.verifyData(data)
 
   if (!descPra) {
@@ -41,8 +44,7 @@ export async function POST(request: NextRequest) {
 
     const { armazem, documento, dt_ini: dtIni } = inventoryData
 
-    const urlApi = process.env.ENDPOINT_SHELF_DETAILS
-
+    /// ////////////////// Busca lista de itens dentro da prateleira /////////////////////
     const response = await fetch(`${urlApi}cPrat=${descPra}&cArmaz=${armazem}`, {
       method: 'GET',
       cache: 'no-cache',
@@ -55,11 +57,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'Sem dados na prateleira' }, { status: 200 })
     }
 
+    /// Armazena somente os códigos dos produtos
     const codProdList = shelfDetails.map((item) => item.codProd)
 
-    const urlApiStatus = process.env.ENDPOINT_SEARCH_EXIST_ITEM
-
-    /// ////////////// Verifica se os itens estão lançados na SB7 /////////////////
+    /// ////////////////// Verifica se os itens estão lançados/conferidos na SB7 /////////////////////
     const responseSqlServer = await fetch(`${urlApiStatus}`, {
       method: 'POST',
       cache: 'no-cache',
@@ -67,7 +68,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json', // Tem que definir o content type (principalemente no POST)
       },
       body: JSON.stringify({
-        aCodProd: codProdList, // Convertendo o objeto para JSON
+        aCodProd: codProdList,
         cArmaz: armazem,
         cDocument: documento,
         cDate: formatDate(dtIni),
@@ -92,8 +93,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(responseCrypt, { status: 200 })
     }
 
+    /// Se houver itens lançados adiciona seu respectivo status
     if ('detalhesItem' in searchProdExist) {
       const updatedShelfDetails = shelfDetails.map((shelfDetail) => {
+        /// Verifica quais itens estão lançados
         const matchingItem = searchProdExist.detalhesItem.find((item) => item.codProd === shelfDetail.codProd)
 
         if (matchingItem) {
@@ -103,6 +106,7 @@ export async function POST(request: NextRequest) {
               currentStatus: 'Conferido',
               colorStatus: 'green',
               textColorStatus: '#fff',
+              qtdB7: matchingItem.qtdProd,
             }
           } else {
             return {
@@ -110,6 +114,7 @@ export async function POST(request: NextRequest) {
               currentStatus: 'Revisar',
               colorStatus: 'red',
               textColorStatus: '#fff',
+              qtdB7: matchingItem.qtdProd,
             }
           }
         } else {
@@ -124,7 +129,6 @@ export async function POST(request: NextRequest) {
 
       const responseCrypt = FormsCrypt.dataCrypt({
         shelfDetails: updatedShelfDetails,
-        searchProdExist: searchProdExist.detalhesItem,
       })
 
       return NextResponse.json(responseCrypt, { status: 200 })
