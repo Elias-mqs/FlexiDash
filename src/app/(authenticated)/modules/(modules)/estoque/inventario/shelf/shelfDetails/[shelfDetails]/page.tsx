@@ -114,12 +114,6 @@ export default function ShelfDetails() {
             </Text>
           </Flex>
 
-          {/* <Flex px={8}>
-            <Text fontWeight={600} fontSize={14} color="#829abf">
-              QTD
-            </Text>
-          </Flex> */}
-
           <Flex>
             <Text pl={2} fontWeight={600} fontSize={14} color="#829abf">
               STATUS
