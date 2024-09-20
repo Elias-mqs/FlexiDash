@@ -1,8 +1,7 @@
 'use client'
 
-import { Flex, Icon, Spinner, Text } from '@chakra-ui/react'
+import { Flex, Icon, Text } from '@chakra-ui/react'
 import Cookies from 'js-cookie'
-import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { IconType } from 'react-icons/lib'
 
@@ -34,16 +33,6 @@ export function ScreenCardRoutine({ icon, title, accessData }: ScreenCardProps) 
     Cookies.set('acsRtnData', data)
 
     router.push(`${pathname}/${accessData.slug}`)
-  }
-
-  if (!title) {
-    return (
-      <Flex flex="1" direction="column" align="center" justify="center" gap={2}>
-        <Image alt="loading" src="/img/undraw_Loading.png" width={401} height={430} priority />
-        <Text fontWeight="bold">Carregando...</Text>
-        <Spinner mt={2} thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" />
-      </Flex>
-    )
   }
 
   return (

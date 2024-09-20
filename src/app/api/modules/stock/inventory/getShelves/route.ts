@@ -9,7 +9,7 @@ interface ListShelvesProps {
 export async function GET() {
   const urlFetch = process.env.ENDPOINT_GET_SHELVES
   try {
-    const res = await fetch(`${urlFetch}`, { method: 'GET' })
+    const res = await fetch(`${urlFetch}`, { method: 'GET', cache: 'no-cache' })
 
     const { listPrat: listShelves }: ListShelvesProps = await res.json()
 

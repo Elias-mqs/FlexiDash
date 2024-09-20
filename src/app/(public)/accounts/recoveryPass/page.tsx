@@ -1,8 +1,5 @@
-import { Flex } from "@chakra-ui/react";
-
+import { Flex } from '@chakra-ui/react'
 
 export default function RecoveryPass() {
-    return(
-        <Flex>Página de recuperação de senha</Flex>
-    )
+  return <Flex>Página de recuperação de senha</Flex>
 }
