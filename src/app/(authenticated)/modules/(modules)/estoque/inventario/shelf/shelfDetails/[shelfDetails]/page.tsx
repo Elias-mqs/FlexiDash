@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
 
-import { ShelfItems } from '@/components/ui/Inventory'
+import { ShelfItems } from '@/components/ui/Modules/Estoque/Inventario/ShelfItems'
 import { api, FormsCrypt } from '@/services'
 
 export type ShelfDetailsProps = {

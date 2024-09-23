@@ -18,7 +18,7 @@ export default function Estoque() {
   const { useListRoutine } = useAccessUser()
   const routineList = useListRoutine()
 
-  if (!routineList) {
+  if (!routineList || routineList?.length === 0) {
     return (
       <Flex flex="1" direction="column" align="center" justify="center" gap={2}>
         <Image alt="loading" src="/img/undraw_Loading.png" width={401} height={430} priority />

@@ -1,14 +1,8 @@
 'use client'
 
 import { Flex, Icon, Text } from '@chakra-ui/react'
-// import Cookies from 'js-cookie'
-// import Cookies from 'js-cookie'
 import { usePathname, useRouter } from 'next/navigation'
 import { IconType } from 'react-icons/lib'
-
-// import { FormsCrypt } from '@/services'
-
-// import { FormsCrypt } from '@/services'
 
 interface ScreenCardProps {
   icon: IconType
@@ -34,13 +28,9 @@ export function ScreenCardResource({ icon, title, route }: ScreenCardProps) {
       </Flex>
 
       <Flex direction="column" p={2} gap={1}>
-        {title ? (
-          <Text fontSize={18} fontWeight={600} color="blue.600">
-            {title}
-          </Text>
-        ) : (
-          <Text>teste</Text>
-        )}
+        <Text fontSize={18} fontWeight={600} color="blue.600">
+          {title}
+        </Text>
       </Flex>
     </Flex>
   )

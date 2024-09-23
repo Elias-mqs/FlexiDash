@@ -22,7 +22,7 @@ export interface ListRoutinesProps {
   }
 }
 
-export interface ListResourceProps {
+export interface ListResourceMiddlewareProps {
   sis_recurso_rotina: {
     slug: string
   }

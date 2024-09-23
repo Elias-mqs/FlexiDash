@@ -1,13 +1,16 @@
 'use client'
 
-import { Flex, Grid } from '@chakra-ui/react'
+import { Flex, Grid, Spinner, Text } from '@chakra-ui/react'
+import { useQuery } from '@tanstack/react-query'
+import Image from 'next/image'
 import { BsBookshelf } from 'react-icons/bs'
 import { FaCogs, FaArchive } from 'react-icons/fa'
 import { IconType } from 'react-icons/lib'
 
 import { ScreenCardResource } from '@/components/ui'
 import InventoryProvider from '@/context/Inventory/InventoryContext'
-import { useAccessUser } from '@/context/SystemLists/AccessUserContext'
+import { useAccessUser, ListResourceProps } from '@/context/SystemLists/AccessUserContext'
+import { api, FormsCrypt } from '@/services'
 
 const resourceDetails: Record<string, { icon: IconType; route: string }> = {
   Gerenciar: { icon: FaCogs, route: '/modules/estoque/inventario/status-inventario' },
@@ -15,11 +18,47 @@ const resourceDetails: Record<string, { icon: IconType; route: string }> = {
   Arquivamento: { icon: FaArchive, route: 'arquivamento' }, /// EXEMPLO DE OUTRAS ROTINAS
 }
 
+/// Busca o acesso dos recursos do inventário
+const availableResources = async (dataList: ListResourceProps[]) => {
+  try {
+    const resourcesCrypt = FormsCrypt.dataCrypt({ dataList })
+
+    const res = await api.post('modules/stock/inventory/accessPermissions', resourcesCrypt)
+
+    const listResourceInventory: { listResourceInventory: ListResourceProps[]; status: string } =
+      await FormsCrypt.verifyData(res.data)
+
+    return listResourceInventory
+  } catch (error) {
+    console.error(error)
+    throw new Error('Error fetching accessPermissions HomeInventory')
+  }
+}
+
 export default function HomeInventory() {
   const { useListResource } = useAccessUser()
 
   const resourceList = useListResource()
 
+  /// Busca opções disponiveis na rotina inventário
+  const { data: dataInventory } = useQuery<{ listResourceInventory: ListResourceProps[]; status: string }>({
+    queryKey: ['access-permissions-resource', resourceList],
+    queryFn: () => availableResources(resourceList!),
+    refetchOnWindowFocus: false,
+    enabled: (resourceList?.length ?? 0) > 0,
+  })
+
+  if (!dataInventory || dataInventory.listResourceInventory.length === 0) {
+    return (
+      <Flex flex="1" direction="column" align="center" justify="center" gap={2}>
+        <Image alt="loading" src="/img/undraw_Loading.png" width={401} height={430} priority />
+        <Text fontWeight="bold">Carregando...</Text>
+        <Spinner mt={2} thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" />
+      </Flex>
+    )
+  }
+
+  /// Lista recursos que estiverem disponíveis de acordo com o status do inventário e as permissões do usuario
   return (
     <InventoryProvider>
       <Flex w="100%" direction="column" p={4} overflow="auto">
@@ -28,7 +67,7 @@ export default function HomeInventory() {
           gap={8}
           px={{ base: 0 }}
         >
-          {resourceList?.map((resource) => {
+          {dataInventory.listResourceInventory?.map((resource) => {
             const resourceName = resource?.sis_recurso_rotina?.nome
             const { icon } = resourceDetails[resourceName] || {}
             return (

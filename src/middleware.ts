@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 
 import { fetchAccess } from '@/utils/middleware/fetchData'
-import { AuthProps, ListModulesProps, ListResourceProps, ListRoutinesProps } from '@/utils/middleware/types'
+import { AuthProps, ListModulesProps, ListResourceMiddlewareProps, ListRoutinesProps } from '@/utils/middleware/types'
 
 import { FormsCrypt } from './services'
 
@@ -110,7 +110,7 @@ export async function middleware(request: NextRequest) {
             const resourceName = pathSegments[3]
 
             try {
-              const listResources: ListResourceProps[] = await fetchAccess(
+              const listResources: ListResourceMiddlewareProps[] = await fetchAccess(
                 `${baseUrl}/api/middleware/listResources/${descyptCookieRtn.acsRtnId}`,
               )
 

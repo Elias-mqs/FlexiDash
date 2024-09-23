@@ -63,6 +63,19 @@ export const DetailItem = ({ items, isOpen, onClose, refetch }: DetailItemProps)
       return
     }
 
+    // Verifica se o tamanho de 'qtdCount' é maior que 12
+    if (data.qtdCount.toString().length > 10) {
+      toast({
+        title: 'Atenção',
+        description: 'O valor excede o limite de 10 caracteres',
+        status: 'info',
+        position: 'top',
+        duration: 2000,
+        isClosable: true,
+      })
+      return
+    }
+
     const qtdCount = Number(data.qtdCount)
 
     /// Se o item ja foi lançado ele atualiza
@@ -173,7 +186,7 @@ export const DetailItem = ({ items, isOpen, onClose, refetch }: DetailItemProps)
                         type="number"
                         maxW="120px"
                         placeholder={items.qtdB7 || items.qtdB7 === 0 ? `${items.qtdB7}` : 'Ex: 10'}
-                        maxLength={9}
+                        max="9999999999"
                         fontWeight={500}
                         color="gray.700"
                         _placeholder={{ color: items.qtdB7 || items.qtdB7 === 0 ? 'gray.400' : 'gray.300' }}

@@ -19,7 +19,7 @@ interface ListRoutineProps {
   }
 }
 
-interface ListResourceProps {
+export type ListResourceProps = {
   id: number
   sis_recurso_rotina: {
     id: number
