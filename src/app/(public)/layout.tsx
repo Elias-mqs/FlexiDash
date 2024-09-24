@@ -6,6 +6,7 @@ import { ProvidersChakra } from '@/providers/chakra'
 export const metadata = {
   title: '',
   description: '',
+  robots: { index: false, follow: false },
 }
 
 const robotoFont = Roboto({

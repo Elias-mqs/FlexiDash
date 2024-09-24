@@ -14,6 +14,16 @@ const findModuleById = async (modId: number) => {
   return sisModule as ModuleProps
 }
 
+const findAllModules = async () => {
+  const listModules = await prisma.sis_modulos.findMany({
+    select: {
+      id: true,
+      nome: true,
+    },
+  })
+  return listModules
+}
+
 const createModule = async (dataMod: { name: string; slug: string }) => {
   await prisma.sis_modulos.create({
     data: {
@@ -25,5 +35,6 @@ const createModule = async (dataMod: { name: string; slug: string }) => {
 
 export const modules = {
   findModuleById,
+  findAllModules,
   createModule,
 }

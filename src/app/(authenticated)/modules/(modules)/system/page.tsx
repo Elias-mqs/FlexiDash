@@ -14,7 +14,7 @@ export default function System() {
   const router = useRouter()
 
   function redirect() {
-    const { data } = FormsCrypt.dataCrypt({ acsRtnId: routineList![0].id, routineId: routineList![0].id })
+    const { data } = FormsCrypt.dataCrypt({ acsRtnId: routineList![0].id, routineId: routineList![0].sis_rotinas.id })
 
     Cookies.set('acsRtnData', data)
 

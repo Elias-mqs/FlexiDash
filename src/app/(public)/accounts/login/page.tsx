@@ -13,16 +13,27 @@ import {
   useToast,
   VStack,
 } from '@chakra-ui/react'
+import { zodResolver } from '@hookform/resolvers/zod'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Controller, useForm } from 'react-hook-form'
 import { FaUser, FaLock } from 'react-icons/fa'
 import { IoMdEye } from 'react-icons/io'
 import { RiEyeCloseLine } from 'react-icons/ri'
+import { z } from 'zod'
 
 import { FormsCrypt, api } from '@/services'
 
-import { resolverLogin } from './schemas'
+const loginSchema = z.object({
+  username: z.string().min(5, 'Mínimo 5 carateres'),
+  pass: z
+    .string()
+    .min(10, 'A senha deve ter no mínimo 10 caracteres')
+    .regex(/[A-Z]/, 'A senha deve conter pelo menos uma letra maiúscula')
+    .regex(/[a-z]/, 'A senha deve conter pelo menos uma letra minúscula')
+    .regex(/[0-9]/, 'A senha deve conter pelo menos um número')
+    .regex(/[!@#$%^&*(),.?":{}|<>]/, 'A senha deve conter pelo menos um caracter especial'),
+})
 
 export default function Login() {
   const toast = useToast()
@@ -33,7 +44,7 @@ export default function Login() {
     control,
     formState: { errors },
   } = useForm({
-    resolver: resolverLogin,
+    resolver: zodResolver(loginSchema),
     defaultValues: { username: '', pass: '' },
   })
 
@@ -43,16 +54,7 @@ export default function Login() {
     const dataForm = FormsCrypt.dataCrypt(data)
 
     try {
-      const res = await api.post('system/login', dataForm)
-
-      toast({
-        title: 'Sucesso!',
-        description: res.data.message,
-        status: 'success',
-        position: 'top',
-        duration: 2000,
-        isClosable: true,
-      })
+      await api.post('system/login', dataForm)
 
       router.push('/modules')
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
