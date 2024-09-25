@@ -11,6 +11,29 @@ const findRoutine = async (modId: number) => {
   return routine
 }
 
+const findManyRoutines = async (modIds: number[]) => {
+  const listRoutines = await prisma.sis_rotinas.findMany({
+    select: {
+      id: true,
+      nome: true,
+      mod_id: true,
+    },
+    where: {
+      mod_id: {
+        in: modIds,
+      },
+    },
+  })
+  // Transformando a estrutura dos dados para renomear mod_id para modId
+  const transformedRoutines = listRoutines.map((routine) => ({
+    id: routine.id,
+    nome: routine.nome,
+    modId: routine.mod_id, // Renomeia mod_id para modId
+  }))
+
+  return transformedRoutines
+}
+
 const createRoutine = async (routineData: { name: string; modId: number; slug: string }) => {
   await prisma.sis_rotinas.create({
     data: {
@@ -23,5 +46,6 @@ const createRoutine = async (routineData: { name: string; modId: number; slug: s
 
 export const routines = {
   findRoutine,
+  findManyRoutines,
   createRoutine,
 }

@@ -24,7 +24,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(secureList, { status: 200 })
   } catch (error) {
-    console.error(error)
+    console.error('Erro na listResources', error)
     return NextResponse.json({ message: 'Erro interno, contate a TI' }, { status: 500 })
   }
 }
