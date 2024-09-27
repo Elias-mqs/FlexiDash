@@ -82,6 +82,20 @@ const findUserCriteria = async (criteria: UserOptionalProps): Promise<UserProps 
   return null
 }
 
+const findAllUsers = async () => {
+  const allUsers = await prisma.sis_usuarios.findMany({
+    select: {
+      id: true,
+      nome: true,
+      usuario: true,
+      email: true,
+      ativo: true,
+    },
+  })
+
+  return allUsers
+}
+
 const createUser = async (dataUser: UserProps) => {
   const { id: userId } = await prisma.sis_usuarios.create({
     select: { id: true },
@@ -118,6 +132,7 @@ export const users = {
   findUserById,
   findFirstUser,
   findUserCriteria,
+  findAllUsers,
   createUser,
   createFirstAccess,
 }

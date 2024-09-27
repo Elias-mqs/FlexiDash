@@ -8,19 +8,22 @@ interface ScreenCardProps {
   icon: IconType
   title: string
   route: string
+  params?: string
 }
 
-export function ScreenCardResource({ icon, title, route }: ScreenCardProps) {
+export function ScreenCardResource({ icon, title, route, params }: ScreenCardProps) {
   const router = useRouter()
 
   const pathname = usePathname()
+
+  const urlPush = params ? `${pathname}/${route}${params}` : `${pathname}/${route}`
 
   return (
     <Flex
       borderRadius={8}
       gap={1}
       _hover={{ bg: '#f0f0f0', cursor: 'pointer' }}
-      onClick={() => router.push(`${pathname}/${route}`)}
+      onClick={() => router.push(urlPush)}
       minW="195px"
     >
       <Flex bg="#f0f0f0" p={2} marginBottom="auto" borderRadius={12}>

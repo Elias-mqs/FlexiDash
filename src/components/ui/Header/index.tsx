@@ -21,7 +21,7 @@ export function Header() {
   const { isExpanded } = useLayoutComponent()
   const dataUser = useUserData()
 
-  console.log(dataUser)
+  console.log('dataUser no Header: ', dataUser)
 
   const ptHeader = isExpanded ? 'pt-1' : 'pt-3'
 
