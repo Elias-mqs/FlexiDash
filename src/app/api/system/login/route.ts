@@ -42,7 +42,7 @@ export async function POST(request: Request) {
       if (verifyPass !== true) {
         return NextResponse.json({ message: 'Senha inválida' }, { status: 401 })
       } else {
-        const accessToken = JwtService.signIn({ usrId: userDb.usrId })
+        const accessToken = JwtService.signIn({ usrId: userDb.usrId! })
 
         if (accessToken === 'JWT_SECRET_NOT_FOUND') {
           return NextResponse.json({ message: 'Erro interno, contate a TI' }, { status: 500 })

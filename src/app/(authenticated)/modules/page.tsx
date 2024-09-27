@@ -129,7 +129,7 @@ export default function Modules() {
             render={({ field }) => (
               <Select
                 bg="#f0f0f0"
-                placeholder="XX"
+                placeholder="Módulos"
                 color="#000"
                 focusBorderColor="blue.300"
                 border="2px solid #c0c0c0"

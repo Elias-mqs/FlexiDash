@@ -3,17 +3,12 @@
 import { useState } from 'react'
 
 import { Button, Checkbox, Flex, Grid, Input, Spinner, Text, useToast } from '@chakra-ui/react'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
 import { useForm, Controller } from 'react-hook-form'
+import { z } from 'zod'
 
 import { api, FormsCrypt } from '@/services'
-
-interface FormProps {
-  name: string
-  email: string
-  username: string
-  pass: string
-}
 
 interface PermissionListProps {
   id: number
@@ -22,15 +17,25 @@ interface PermissionListProps {
   rotinaId?: number
 }
 
+const userRegisterSchema = z.object({
+  name: z.string().min(3),
+  email: z.string().email(),
+  username: z.string().min(5),
+})
+
+type UserRegisterProps = z.infer<typeof userRegisterSchema>
+
 export default function UserRegister() {
   const toast = useToast()
 
   const [activeIndex, setActiveIndex] = useState<number>(0) // Controla qual lista está ativa (Módulos, Rotinas, ou Recursos)
   const [selectedModules, setSelectedModules] = useState<number[]>([]) // Módulos selecionados
   const [selectedRoutines, setSelectedRoutines] = useState<number[]>([]) // Rotinas selecionadas
-  const [selectedResources, setSelectedResources] = useState<number[]>([]) // Estado para recursos selecionados
 
-  // Query para listar módulos
+  const [selectedResources, setSelectedResources] = useState<number[]>([]) // Estado para recursos selecionados
+  const [resourceListForm, setResourceListForm] = useState<PermissionListProps[]>([]) // Prepara a lista de recursos para envio do form
+
+  /// Query para listar módulos
   const { data: listModules } = useQuery({
     queryKey: ['list-modules-user'],
     queryFn: async () => {
@@ -40,7 +45,7 @@ export default function UserRegister() {
     refetchOnWindowFocus: false,
   })
 
-  // Query para listar rotinas com base nos módulos selecionados
+  /// Query para listar rotinas com base nos módulos selecionados
   const { data: listRoutines } = useQuery({
     queryKey: ['list-routines', selectedModules],
     queryFn: async () => {
@@ -52,13 +57,12 @@ export default function UserRegister() {
     refetchOnWindowFocus: false,
   })
 
-  // Query para listar recursos com base nas rotinas selecionadas
+  /// Query para listar recursos com base nas rotinas selecionadas
   const { data: listResources } = useQuery({
     queryKey: ['list-resources', selectedRoutines],
     queryFn: async () => {
       if (selectedRoutines.length === 0) return []
       const res = await api.post('system/user/list-resources-user', { routines: selectedRoutines })
-      console.log('resources: ', res.data)
       return res.data.listResources as PermissionListProps[]
     },
     enabled: selectedRoutines.length > 0,
@@ -66,12 +70,64 @@ export default function UserRegister() {
   })
 
   const { handleSubmit, control } = useForm({
-    defaultValues: { name: '', email: '', username: '', pass: '' },
+    resolver: zodResolver(userRegisterSchema),
+    defaultValues: { name: '', email: '', username: '' },
   })
 
   // Envia o registro
-  const handleRegister = async (data: FormProps) => {
-    const formResgister = FormsCrypt.dataCrypt(data)
+  const handleRegister = async (data: UserRegisterProps) => {
+    if (!data.name || !data.email || !data.username) {
+      return toast({
+        title: 'Atenção',
+        description: 'Informe os campos corretamente',
+        status: 'error',
+        position: 'top',
+        duration: 3000,
+        isClosable: true,
+      })
+    }
+
+    if (selectedModules.length < 1) {
+      return toast({
+        title: 'Atenção',
+        description: 'Selecione ao menos um módulo',
+        status: 'info',
+        position: 'top',
+        duration: 3000,
+        isClosable: true,
+      })
+    }
+
+    if (selectedRoutines.length < 1) {
+      return toast({
+        title: 'Atenção',
+        description: 'Selecione ao menos uma rotina',
+        status: 'info',
+        position: 'top',
+        duration: 3000,
+        isClosable: true,
+      })
+    }
+
+    if (selectedResources.length < 1) {
+      return toast({
+        title: 'Atenção',
+        description: 'Selecione ao menos um recurso',
+        status: 'info',
+        position: 'top',
+        duration: 3000,
+        isClosable: true,
+      })
+    }
+
+    // Criptografa os dados antes do envio
+    const formResgister = FormsCrypt.dataCrypt({
+      ...data,
+      listModules: selectedModules,
+      listRoutines: selectedRoutines,
+      // listResources: selectedResources,
+      listResources: resourceListForm,
+    })
 
     try {
       const res = await api.post('system/user/register/register-user', formResgister)
@@ -87,7 +143,6 @@ export default function UserRegister() {
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      console.log(error)
       return toast({
         title: error.data?.title,
         description: error.data?.message,
@@ -99,11 +154,12 @@ export default function UserRegister() {
     }
   }
 
+  /// Define ativo o item do aside "Acessos"
   const handleItemClick = (index: number) => {
-    setActiveIndex(index) // Define o item clicado como ativo
+    setActiveIndex(index)
   }
 
-  // Lida com a seleção dos módulos
+  /// Lida com a seleção dos módulos
   const handleModuleChange = (isChecked: boolean, moduleId: number) => {
     if (isChecked) {
       setSelectedModules((prev) => [...prev, moduleId])
@@ -111,15 +167,26 @@ export default function UserRegister() {
       const updatedModules = selectedModules.filter((id) => id !== moduleId)
       setSelectedModules(updatedModules)
 
-      // Se não houver mais módulos selecionados, limpa rotinas e recursos
-      if (updatedModules.length === 0) {
-        setSelectedRoutines([])
-        setSelectedResources([])
-      }
+      // Desmarcar rotinas associadas ao módulo desmarcado
+      const updatedRoutines = selectedRoutines.filter(
+        (routineId) => !listRoutines?.some((routine) => routine.modId === moduleId && routine.id === routineId),
+      )
+      setSelectedRoutines(updatedRoutines)
+
+      // Desmarcar recursos apenas das rotinas removidas
+      const updatedResources = selectedResources.filter(
+        (resourceId) =>
+          !listResources?.some(
+            (resource) =>
+              listRoutines?.some((routine) => routine.modId === moduleId && resource.rotinaId === routine.id) &&
+              resource.id === resourceId,
+          ),
+      )
+      setSelectedResources(updatedResources)
     }
   }
 
-  // Lida com a seleção das rotinas
+  /// Lida com a seleção das rotinas
   const handleRoutineChange = (isChecked: boolean, routineId: number) => {
     if (isChecked) {
       setSelectedRoutines((prev) => [...prev, routineId])
@@ -127,22 +194,27 @@ export default function UserRegister() {
       const updatedRoutines = selectedRoutines.filter((id) => id !== routineId)
       setSelectedRoutines(updatedRoutines)
 
-      // Se não houver mais rotinas selecionadas, limpa recursos
-      if (updatedRoutines.length === 0) {
-        setSelectedResources([])
-      }
+      // Desmarcar recursos associados apenas à rotina desmarcada
+      const updatedResources = selectedResources.filter(
+        (resourceId) =>
+          !listResources?.some((resource) => resource.rotinaId === routineId && resource.id === resourceId),
+      )
+      setSelectedResources(updatedResources)
     }
   }
 
-  const handleResourceChange = (isChecked: boolean, resourceId: number) => {
+  /// Lida com a seleção dos recursos
+  const handleResourceChange = (isChecked: boolean, resource: PermissionListProps) => {
     if (isChecked) {
-      setSelectedResources((prev) => [...prev, resourceId])
+      setSelectedResources((prev) => [...prev, resource.id])
+      setResourceListForm((prev) => [...prev, resource])
     } else {
-      setSelectedResources((prev) => prev.filter((id) => id !== resourceId))
+      setSelectedResources((prev) => prev.filter((id) => id !== resource.id))
+      setResourceListForm((prev) => prev.filter((id) => id.id !== resource.id))
     }
   }
 
-  // Array condicional que muda de acordo com o activeIndex
+  /// Array condicional que muda de acordo com o activeIndex
   const permissionItems = [
     { title: 'Módulos', visible: true }, // Sempre visível
     { title: 'Rotinas', visible: selectedModules.length > 0 }, // Somente visível se houver módulos selecionados
@@ -205,20 +277,7 @@ export default function UserRegister() {
           )}
         />
 
-        <Controller
-          name="pass"
-          control={control}
-          render={({ field: { onChange, value } }) => (
-            <Flex direction="column">
-              <Text fontSize={14} fontWeight={500} pb={0.5} pl={2}>
-                Senha:
-              </Text>
-              <Input type="password" value={value} onChange={onChange} placeholder="senha" />
-            </Flex>
-          )}
-        />
-
-        <Button type="submit" colorScheme="blue">
+        <Button type="submit" colorScheme="blue" mt="auto">
           Cadastrar
         </Button>
       </Grid>
@@ -237,6 +296,7 @@ export default function UserRegister() {
                     as="li"
                     py={1}
                     pl={2}
+                    pr={2}
                     bg={activeIndex === index ? 'gray.200' : 'transparent'}
                     borderLeft="3px solid #63b3ed"
                     _hover={{ cursor: 'pointer', bg: '#EDF2F7' }}
@@ -375,7 +435,7 @@ export default function UserRegister() {
                               key={resource.id}
                               fontWeight={500}
                               isChecked={selectedResources.includes(resource.id)} // Persistência da seleção dos recursos
-                              onChange={(e) => handleResourceChange(e.target.checked, resource.id)} // Lidar com a seleção dos recursos
+                              onChange={(e) => handleResourceChange(e.target.checked, resource)} // Lidar com a seleção dos recursos
                             >
                               {resource.nome}
                             </Checkbox>

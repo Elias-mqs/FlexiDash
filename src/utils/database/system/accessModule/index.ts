@@ -62,17 +62,22 @@ const listModules = async (usrId: number) => {
   }
 }
 
-const createAcsMod = async (acsMod: { usrId: number; modId: number }) => {
-  await prisma.sis_acess_modulo.create({
-    data: {
-      usr_id: acsMod.usrId,
-      mod_id: acsMod.modId,
-    },
-  })
+// Função para associar os módulos ao usuário
+async function createModuleAccess(userId: number, moduleIds: number[]) {
+  const promises = moduleIds.map((modId) =>
+    prisma.sis_acess_modulo.create({
+      data: {
+        usr_id: userId,
+        mod_id: modId,
+      },
+    }),
+  )
+
+  return await Promise.all(promises) // Retorna todos os acessos criados
 }
 
 export const accessMod = {
   findAcsMod,
-  createAcsMod,
+  createModuleAccess,
   listModules,
 }

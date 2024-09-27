@@ -63,17 +63,43 @@ const listResource = async (acsRtnId: number) => {
   }
 }
 
-const createAcsResource = async (data: { acsRotId: number; recRotinaId: number }) => {
-  await prisma.sis_acess_recurso.create({
-    data: {
-      acess_rot_id: data.acsRotId,
-      rec_rotina_id: data.recRotinaId,
-    },
+type RoutineAccessesProps = {
+  id: number
+  acess_mod_id: number
+  rotina_id: number
+}[]
+
+type ResourceList = {
+  id: number
+  nome: string
+  modId?: number | undefined
+  rotinaId?: number | undefined
+}
+
+// Função para associar recursos às rotinas
+async function createResourceAccess(routineAccesses: RoutineAccessesProps, resourceIds: ResourceList[]) {
+  const promises = resourceIds.map((recurso) => {
+    // Encontrar o acesso à rotina correspondente ao `rotinaId` do recurso
+    const routineAccess = routineAccesses.find((rotina) => rotina.rotina_id === recurso.rotinaId)
+
+    if (!routineAccess) {
+      throw new Error(`Acesso à rotina não encontrado para o recurso com rotinaId: ${recurso.rotinaId}`)
+    }
+
+    // Criar o acesso ao recurso
+    return prisma.sis_acess_recurso.create({
+      data: {
+        acess_rot_id: routineAccess.id, // ID do acesso à rotina encontrado
+        rec_rotina_id: recurso.id, // ID do recurso atual
+      },
+    })
   })
+
+  return await Promise.all(promises)
 }
 
 export const acsResource = {
   findAcsResource,
-  createAcsResource,
+  createResourceAccess,
   listResource,
 }

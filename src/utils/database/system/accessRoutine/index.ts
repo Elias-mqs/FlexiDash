@@ -64,17 +64,28 @@ const listRoutine = async (acsModId: number) => {
   }
 }
 
-const createAcsRoutine = async (dataAcs: { acsModId: number; routineId: number }) => {
-  await prisma.sis_acess_rotina.create({
-    data: {
-      acess_mod_id: dataAcs.acsModId,
-      rotina_id: dataAcs.routineId,
-    },
-  })
+type ModuleAccessesProps = {
+  id: number
+  usr_id: number
+  mod_id: number
+}[]
+
+// Função para associar rotinas aos módulos
+async function createRoutineAccess(moduleAccesses: ModuleAccessesProps, routineIds: number[]) {
+  const promises = routineIds.map((rotinaId) =>
+    prisma.sis_acess_rotina.create({
+      data: {
+        acess_mod_id: moduleAccesses.find((mod) => mod.mod_id === rotinaId)?.id || 0,
+        rotina_id: rotinaId,
+      },
+    }),
+  )
+
+  return await Promise.all(promises)
 }
 
 export const accessRoutine = {
   findAcsRoutine,
-  createAcsRoutine,
+  createRoutineAccess,
   listRoutine,
 }
