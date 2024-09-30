@@ -2,13 +2,33 @@
 
 import { useState } from 'react'
 
-import { Table, TableContainer, Thead, Tr, Th, Tbody, Td, Tfoot, Select } from '@chakra-ui/react'
-import { useQuery } from '@tanstack/react-query'
+import {
+  Table,
+  TableContainer,
+  Thead,
+  Tr,
+  Th,
+  Tbody,
+  Td,
+  Text,
+  Flex,
+  Spinner,
+  Input,
+  InputGroup,
+  InputRightElement,
+  IconButton,
+  useDisclosure,
+} from '@chakra-ui/react'
+import { useQuery, keepPreviousData } from '@tanstack/react-query'
+import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
+import { FaSearch } from 'react-icons/fa'
 
+import { Pagination } from '@/components/ui/Pagination'
+import { UpdateUserModal } from '@/components/ui/System/User/UpdateUserModal'
 import { api } from '@/services'
 
-interface ListUsersProps {
+export interface ListUsersProps {
   id: number
   nome: string
   usuario: string
@@ -16,7 +36,7 @@ interface ListUsersProps {
   ativo: boolean
 }
 
-interface listUsersPaginationProps {
+interface ListUsersPaginationProps {
   first: number
   prev: number | null
   next: number | null
@@ -27,44 +47,58 @@ interface listUsersPaginationProps {
 }
 
 export default function UpdateUser() {
-  console.log('================= renderizando ==================')
   const searchParams = useSearchParams()
 
-  const [perPage, setPerPage] = useState<number>(10)
+  const { isOpen, onOpen, onClose } = useDisclosure()
+
+  const [searchUser, setSearchUser] = useState('')
+  const [activeModal, setActiveModal] = useState<ListUsersProps | null>(null)
 
   const page = searchParams.get('page') ? Number(searchParams.get('page')) : 1
+  const perPage = searchParams.get('per_page') ? searchParams.get('per_page') : '10'
 
-  const { data: listUsersPagination } = useQuery<listUsersPaginationProps>({
-    queryKey: ['users', 'updateUserPage', 'getAll', page],
+  const { data: listUsersPagination } = useQuery<ListUsersPaginationProps>({
+    queryKey: ['users', 'updateUserPage', 'getAll', page, perPage],
     queryFn: async () => {
-      searchParams.get('per_page') ?? setPerPage(Number(searchParams.get('per_page')))
       const response = await api.get(`system/user/list-users-pagination?page=${page}&per_page=${perPage}`)
       return response.data
     },
+    refetchOnWindowFocus: false,
+    placeholderData: keepPreviousData,
   })
 
-  console.log(listUsersPagination)
+  if (!listUsersPagination || listUsersPagination.data.length < 1) {
+    return (
+      <Flex as="main" flex="1" direction="column" align="center" justify="center" gap={2}>
+        <Image alt="loading" src="/img/undraw_Loading.png" width={401} height={430} priority />
+        <Text fontWeight="bold">Carregando...</Text>
+        <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" />
+      </Flex>
+    )
+  }
+
+  const filteredList =
+    searchUser.length > 0
+      ? listUsersPagination.data.filter((user) =>
+          [user.nome, user.usuario, user.email].some((field) => field.toLowerCase().includes(searchUser.toLowerCase())),
+        )
+      : listUsersPagination.data
+
+  const handleOpen = (modalUser: ListUsersProps) => {
+    setActiveModal(modalUser)
+    onOpen()
+  }
 
   return (
-    <main className="mx-auto w-full max-w-6xl space-y-5 overflow-y-auto p-4">
-      <div className="flex items-center justify-between">
-        <div className="flex w-auto justify-center gap-2">
-          <label className="my-auto text-sm font-medium text-gray-600">Linhas por página:</label>
+    <main className="mx-auto w-full max-w-7xl space-y-5 overflow-y-auto p-4">
+      <div className="flex justify-end gap-4">
+        <InputGroup size="md" w={{ base: '100%', sm: '250px' }} borderRadius="50%">
+          <Input placeholder="Buscar" borderRadius="1rem" onChange={(e) => setSearchUser(e.target.value)} />
 
-          <Select w="72px" className="h-9 text-base">
-            <option value="10">10</option>
-            <option value="15" selected>
-              15
-            </option>
-            <option value="20">20</option>
-            <option value="30">30</option>
-          </Select>
-        </div>
-
-        <div className="flex gap-4">
-          <input placeholder="colocar um input aqui com um icon search" className="w-96 bg-red-400" />
-          <button>Search</button>
-        </div>
+          <InputRightElement>
+            <IconButton aria-label="Search user" colorScheme="transparent" icon={<FaSearch color="c0c0c0" />} />
+          </InputRightElement>
+        </InputGroup>
       </div>
 
       <TableContainer>
@@ -83,11 +117,13 @@ export default function UpdateUser() {
               <Th fontWeight={600} fontSize={14} color="#829abf">
                 Ativo
               </Th>
+              <Th></Th>
             </Tr>
           </Thead>
+
           <Tbody>
-            {listUsersPagination?.data.map((dataUser) => (
-              <Tr key={dataUser.id}>
+            {filteredList.map((dataUser) => (
+              <Tr key={dataUser.id} className="hover:bg-zinc-100">
                 <Td py={4} fontWeight={500}>
                   {dataUser.nome}
                 </Td>
@@ -97,23 +133,49 @@ export default function UpdateUser() {
                 <Td py={4} fontWeight={500}>
                   {dataUser.email}
                 </Td>
-                <Td py={4} fontWeight={500}>
-                  {dataUser.ativo ? 'Ativo' : 'Inativo'}
+                <Td w="130px" fontWeight={400}>
+                  <Text
+                    py={0.5}
+                    px={2}
+                    align="center"
+                    color="#fff"
+                    borderRadius={12}
+                    bg={dataUser.ativo ? 'green' : 'red'}
+                  >
+                    {dataUser.ativo ? 'Ativo' : 'Inativo'}
+                  </Text>
+                </Td>
+                <Td>
+                  <Text
+                    as="button"
+                    fontWeight={600}
+                    color="#2458ab"
+                    fontSize={14}
+                    _hover={{ transform: 'scale(1.1)' }}
+                    cursor="pointer"
+                    transition="all .1s ease"
+                    onClick={() => handleOpen(dataUser)}
+                  >
+                    Alterar
+                  </Text>
                 </Td>
               </Tr>
             ))}
           </Tbody>
-
-          {/* O conteudo do Tfoot vai ser substituido pelo pagination */}
-          <Tfoot>
-            <Tr>
-              <Th>To convert</Th>
-              <Th>into</Th>
-              <Th isNumeric>multiply by</Th>
-            </Tr>
-          </Tfoot>
         </Table>
       </TableContainer>
+
+      {listUsersPagination && (
+        <Pagination
+          page={page}
+          pages={listUsersPagination.pages}
+          items={listUsersPagination.items}
+          perPage={perPage!}
+          viewing={listUsersPagination.data.length}
+        />
+      )}
+
+      <UpdateUserModal isOpen={isOpen} onClose={onClose} activeModal={activeModal} />
     </main>
   )
 }
