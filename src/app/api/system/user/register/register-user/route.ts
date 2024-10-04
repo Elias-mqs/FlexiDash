@@ -6,16 +6,6 @@ import { emailServices } from '@/services/email'
 import { utils } from '@/utils/actions/generateRandomPass'
 import { db } from '@/utils/database'
 
-// Esquema de validação com Zod
-// const userFormSchema = z.object({
-//   name: z.string().min(1, 'Nome é obrigatório'),
-//   email: z.string().email('Email inválido'),
-//   username: z.string().min(1, 'Nome de usuário é obrigatório'),
-//   listModules: z.array(z.number()).min(1, 'Pelo menos um módulo deve ser selecionado'),
-//   listRoutines: z.array(z.number()).min(1, 'Pelo menos uma rotina deve ser selecionada'),
-//   listResources: z.array(z.number()).min(1, 'Pelo menos um recurso deve ser selecionado'),
-// })
-
 const userFormSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
   email: z.string().email('Email inválido'),
@@ -27,14 +17,11 @@ const userFormSchema = z.object({
       z.object({
         id: z.number(),
         nome: z.string(),
-        modId: z.number().optional(),
-        rotinaId: z.number().optional(),
+        rotinaId: z.number(),
       }),
     )
     .min(1, 'Pelo menos um recurso deve ser selecionado'),
 })
-
-// type UserFormProps = z.infer<typeof userFormSchema>
 
 export async function POST(request: Request) {
   const data = await request.json()

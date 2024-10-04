@@ -104,28 +104,112 @@ const createUser = async (dataUser: UserProps) => {
   return userId
 }
 
-type ListsFormProps = {
+type UpdateUserProps = {
+  userId: number
+  newName?: string
+  newEmail?: string
+  newUsername?: string
+}
+
+const updateUser = async ({ userId, newName, newEmail, newUsername }: UpdateUserProps) => {
+  // Verificar se o email ou username são fornecidos
+  const existingUserWithEmail = newEmail
+    ? await prisma.sis_usuarios.findFirst({
+        where: { email: newEmail },
+      })
+    : null
+
+  const existingUserWithUsername = newUsername
+    ? await prisma.sis_usuarios.findFirst({
+        where: { usuario: newUsername },
+      })
+    : null
+
+  // Verifica se o usuário com o email ou username existe e não é o próprio usuário que está sendo atualizado
+  if (
+    (existingUserWithEmail && existingUserWithEmail.id !== userId) ||
+    (existingUserWithUsername && existingUserWithUsername.id !== userId)
+  ) {
+    throw new Error('Email ou username já estão em uso por outro usuário.')
+  }
+
+  // Prepara os dados a serem atualizados
+  const updatedData: {
+    nome?: string
+    email?: string
+    usuario?: string
+  } = {}
+
+  // Adiciona os campos que foram alterados
+  if (newName) updatedData.nome = newName
+  if (newEmail) updatedData.email = newEmail
+  if (newUsername) updatedData.usuario = newUsername
+
+  // Realiza a atualização do usuário apenas com os campos que foram informados
+  const updatedUser = await prisma.sis_usuarios.update({
+    where: { id: userId },
+    data: updatedData,
+  })
+
+  return updatedUser
+}
+
+/// ///////////////////////////////////////////////////////////////////////////////////////////
+/// //////////////////////// Função principal para criar os acessos ///////////////////////////
+/// ///////////////////////////////////////////////////////////////////////////////////////////
+type ListsCreateFormProps = {
   listModules: number[]
   listRoutines: number[]
-  // listResources: number[]
   listResources: {
     id: number
     nome: string
-    modId?: number | undefined
-    rotinaId?: number | undefined
+    rotinaId: number
   }[]
 }
 
-// Função principal para criar os acessos
-async function createFirstAccess(userId: number, listsForm: ListsFormProps) {
-  // 2. Atribuir os módulos ao usuário
+/// /////////////// Cria todos os acessos iniciais passados no formulario de registro
+async function createFirstAccess(userId: number, listsForm: ListsCreateFormProps) {
+  // Atribui os módulos ao usuário
   const moduleAccesses = await dbSystem.accessMod.createModuleAccess(userId, listsForm.listModules)
 
-  // 3. Atribuir as rotinas aos módulos
+  // Atribui as rotinas aos módulos
   const routineAccesses = await dbSystem.accessRoutine.createRoutineAccess(moduleAccesses, listsForm.listRoutines)
 
-  // 4. Atribuir os recursos às rotinas
+  // Atribui os recursos às rotinas
   await dbSystem.acsResource.createResourceAccess(routineAccesses, listsForm.listResources)
+}
+
+/// /////////////// Busca todos as informações de todos os acessos do usuário
+async function getUserAccess(userId: number) {
+  try {
+    const userAccess = await prisma.sis_usuarios.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        sis_acess_modulo: {
+          include: {
+            sis_modulos: true, // Módulos acessados pelo usuário
+            sis_acess_rotina: {
+              include: {
+                sis_rotinas: true, // Rotinas acessadas
+                sis_acess_recurso: {
+                  include: {
+                    sis_recurso_rotina: true, // Recursos acessados
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    return userAccess
+  } catch (error) {
+    console.error('Error fetching user access:', error)
+    throw error
+  }
 }
 
 export const users = {
@@ -134,5 +218,7 @@ export const users = {
   findUserCriteria,
   findAllUsers,
   createUser,
+  updateUser,
   createFirstAccess,
+  getUserAccess,
 }

@@ -11,6 +11,17 @@ const findRoutine = async (modId: number) => {
   return routine
 }
 
+const findAllRoutines = async () => {
+  const allRoutinesList = await prisma.sis_rotinas.findMany({
+    select: {
+      id: true,
+      nome: true,
+    },
+  })
+
+  return allRoutinesList
+}
+
 const findManyRoutines = async (modIds: number[]) => {
   const listRoutines = await prisma.sis_rotinas.findMany({
     select: {
@@ -46,6 +57,7 @@ const createRoutine = async (routineData: { name: string; modId: number; slug: s
 
 export const routines = {
   findRoutine,
+  findAllRoutines,
   findManyRoutines,
   createRoutine,
 }

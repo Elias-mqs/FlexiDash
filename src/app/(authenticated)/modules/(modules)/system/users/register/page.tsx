@@ -10,11 +10,16 @@ import { z } from 'zod'
 
 import { api, FormsCrypt } from '@/services'
 
-interface PermissionListProps {
+interface RoutinesPermissionListProps {
   id: number
   nome: string
-  modId?: number
-  rotinaId?: number
+  modId: number
+}
+
+interface ResourcesPermissionListProps {
+  id: number
+  nome: string
+  rotinaId: number
 }
 
 const userRegisterSchema = z.object({
@@ -33,14 +38,14 @@ export default function UserRegister() {
   const [selectedRoutines, setSelectedRoutines] = useState<number[]>([]) // Rotinas selecionadas
 
   const [selectedResources, setSelectedResources] = useState<number[]>([]) // Estado para recursos selecionados
-  const [resourceListForm, setResourceListForm] = useState<PermissionListProps[]>([]) // Prepara a lista de recursos para envio do form
+  const [resourceListForm, setResourceListForm] = useState<ResourcesPermissionListProps[]>([]) // Prepara a lista de recursos para envio do form
 
   /// Query para listar módulos
   const { data: listModules } = useQuery({
     queryKey: ['list-modules-user'],
     queryFn: async () => {
       const res = await api.get('system/user/list-modules-user')
-      return res.data.listModules as PermissionListProps[]
+      return res.data.listModules as { id: number; nome: string }[]
     },
     refetchOnWindowFocus: false,
   })
@@ -51,7 +56,7 @@ export default function UserRegister() {
     queryFn: async () => {
       if (selectedModules.length === 0) return []
       const res = await api.post('system/user/list-routines-user', { modules: selectedModules })
-      return res.data.listRoutines as PermissionListProps[]
+      return res.data.listRoutines as RoutinesPermissionListProps[]
     },
     enabled: selectedModules.length > 0,
     refetchOnWindowFocus: false,
@@ -63,7 +68,7 @@ export default function UserRegister() {
     queryFn: async () => {
       if (selectedRoutines.length === 0) return []
       const res = await api.post('system/user/list-resources-user', { routines: selectedRoutines })
-      return res.data.listResources as PermissionListProps[]
+      return res.data.listResources as ResourcesPermissionListProps[]
     },
     enabled: selectedRoutines.length > 0,
     refetchOnWindowFocus: false,
@@ -204,7 +209,7 @@ export default function UserRegister() {
   }
 
   /// Lida com a seleção dos recursos
-  const handleResourceChange = (isChecked: boolean, resource: PermissionListProps) => {
+  const handleResourceChange = (isChecked: boolean, resource: ResourcesPermissionListProps) => {
     if (isChecked) {
       setSelectedResources((prev) => [...prev, resource.id])
       setResourceListForm((prev) => [...prev, resource])

@@ -11,6 +11,17 @@ const findRscRoutine = async (routineId: number) => {
   return rscRoutine
 }
 
+const findAllResources = async () => {
+  const allResourcesList = await prisma.sis_recurso_rotina.findMany({
+    select: {
+      id: true,
+      nome: true,
+    },
+  })
+
+  return allResourcesList
+}
+
 const findManyResources = async (routineIds: number[]) => {
   const listResources = await prisma.sis_recurso_rotina.findMany({
     select: {
@@ -46,6 +57,7 @@ const createRscRoutine = async (data: { name: string; rotinaId: number; slug: st
 
 export const resourceRoutine = {
   findRscRoutine,
+  findAllResources,
   findManyResources,
   createRscRoutine,
 }

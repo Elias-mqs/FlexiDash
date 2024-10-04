@@ -36,7 +36,7 @@ export function ScreenCardRoutine({ icon, title, accessData }: ScreenCardProps) 
   }
 
   return (
-    <Flex borderRadius={8} gap={1} _hover={{ bg: '#f0f0f0', cursor: 'pointer' }} onClick={accessResource}>
+    <Flex as="button" borderRadius={8} gap={1} _hover={{ bg: '#f0f0f0', cursor: 'pointer' }} onClick={accessResource}>
       <Flex bg="#f0f0f0" p={2} marginBottom="auto" borderRadius={12}>
         <Icon as={icon} color="blue.700" fontSize={{ base: 30, sm: 24 }} />
       </Flex>

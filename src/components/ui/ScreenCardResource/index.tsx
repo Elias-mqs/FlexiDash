@@ -20,6 +20,7 @@ export function ScreenCardResource({ icon, title, route, params }: ScreenCardPro
 
   return (
     <Flex
+      as="button"
       borderRadius={8}
       gap={1}
       _hover={{ bg: '#f0f0f0', cursor: 'pointer' }}
