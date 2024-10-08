@@ -11,11 +11,14 @@ import {
   Text,
   ModalHeader,
 } from '@chakra-ui/react'
-import { useQuery } from '@tanstack/react-query'
+import { QueryObserverResult, RefetchOptions, useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 import { TbEdit } from 'react-icons/tb'
 
-import { ListUsersProps } from '@/app/(authenticated)/modules/(modules)/system/users/update-user/page'
+import {
+  ListUsersPaginationProps,
+  ListUsersProps,
+} from '@/app/(authenticated)/modules/(modules)/system/users/update-user/page'
 import { UserAccessProps } from '@/app/api/system/user/update-user/get-list-access/types'
 import { api, FormsCrypt } from '@/services'
 
@@ -25,18 +28,19 @@ interface UpdateUserModalProps {
   isOpen: boolean
   onClose: () => void
   activeModal: ListUsersProps | null
+  refetchListUsers: (options?: RefetchOptions) => Promise<QueryObserverResult<ListUsersPaginationProps, Error>>
 }
 
-export function UpdateUserModal({ isOpen, onClose, activeModal }: UpdateUserModalProps) {
-  // console.log('activeModal:', activeModal)
-
+export function UpdateUserModal({ isOpen, onClose, activeModal, refetchListUsers }: UpdateUserModalProps) {
   /// //////////// Busca lista dos ids dos acessos dos usuários
-  const { data: userAccessList } = useQuery({
+  const { data: userAccessList, refetch: refetchUserAccessesList } = useQuery({
     queryKey: ['user', 'get-access', 'update-modal', activeModal],
     queryFn: async () => {
       if (!activeModal) throw new Error('No active modal')
+
       const dataCrypt = FormsCrypt.dataCrypt({ userId: activeModal.id })
       const res = await api.post('system/user/update-user/get-list-access', dataCrypt)
+
       return res.data as UserAccessProps
     },
     refetchOnWindowFocus: false,
@@ -82,7 +86,13 @@ export function UpdateUserModal({ isOpen, onClose, activeModal }: UpdateUserModa
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody minH="xl" maxH="37rem" overflowY="auto">
-          <UserUpdateForm dataUser={activeModal} userAccessList={userAccessList} onClose={onClose} />
+          <UserUpdateForm
+            dataUser={activeModal}
+            userAccessList={userAccessList}
+            onClose={onClose}
+            refetchUserAccessesList={refetchUserAccessesList}
+            refetchListUsers={refetchListUsers}
+          />
         </ModalBody>
       </ModalContent>
     </Modal>

@@ -45,7 +45,10 @@ export function AccessUpdateForm({ control, watch, setValue }: AccessUpdateFormP
                   bg={activeIndex === index ? 'gray.200' : 'transparent'}
                   borderLeft="3px solid #63b3ed"
                   _hover={{ cursor: 'pointer', bg: '#EDF2F7' }}
-                  onClick={() => handleItemClick(index)} // Atualiza o activeIndex para a seleção
+                  onClick={(e) => {
+                    e.preventDefault()
+                    handleItemClick(index)
+                  }} // Atualiza o activeIndex para a seleção
                 >
                   <Text as="button" fontWeight={500}>
                     {item}
@@ -91,6 +94,7 @@ function ArticleOptions({ activeIndex, control, watch, setValue }: ArticleOption
       const res = await api.get('system/user/list-system-features')
       return res.data.featuresList
     },
+    refetchOnWindowFocus: false,
   })
 
   if (!listSystemFeatures) {

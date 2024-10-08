@@ -7,7 +7,7 @@ import { srcUser } from '../userData'
 export async function GET(request: Request) {
   const token = request.headers.get('Authorization')?.replace('Bearer ', '')
 
-  if (token === ('' || undefined)) {
+  if (!token) {
     return NextResponse.json({ message: 'Token invalido ou expirado' }, { status: 401 })
   }
 

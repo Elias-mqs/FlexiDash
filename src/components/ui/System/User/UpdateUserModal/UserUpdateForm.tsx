@@ -1,10 +1,15 @@
-import { Button, Flex, FormControl, Input, Select, Text, useDisclosure } from '@chakra-ui/react'
+import { Button, Flex, FormControl, Input, Select, Text, useDisclosure, useToast } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query'
 import { useForm, Controller } from 'react-hook-form'
 import { z } from 'zod'
 
-import { ListUsersProps } from '@/app/(authenticated)/modules/(modules)/system/users/update-user/page'
+import {
+  ListUsersPaginationProps,
+  ListUsersProps,
+} from '@/app/(authenticated)/modules/(modules)/system/users/update-user/page'
 import { UserAccessProps } from '@/app/api/system/user/update-user/get-list-access/types'
+import { api, FormsCrypt } from '@/services'
 
 import { UpdateConfirmationModal } from '../UpdateConfirmationModal'
 
@@ -25,9 +30,18 @@ type UserUpdateForm = {
   dataUser: ListUsersProps
   userAccessList: UserAccessProps
   onClose: () => void
+  refetchUserAccessesList: (options?: RefetchOptions) => Promise<QueryObserverResult<UserAccessProps, Error>>
+  refetchListUsers: (options?: RefetchOptions) => Promise<QueryObserverResult<ListUsersPaginationProps, Error>>
 }
 
-export function UserUpdateForm({ dataUser, userAccessList, onClose }: UserUpdateForm) {
+export function UserUpdateForm({
+  dataUser,
+  userAccessList,
+  onClose,
+  refetchUserAccessesList,
+  refetchListUsers,
+}: UserUpdateForm) {
+  const toast = useToast()
   const modalConfirmation = useDisclosure()
 
   /// Somente features que o usuário está cadastrado, sem informações de tabelas de acesso
@@ -57,8 +71,35 @@ export function UserUpdateForm({ dataUser, userAccessList, onClose }: UserUpdate
     },
   })
 
-  const handleUpdateUserForm = (data: UserDataFormProps) => {
-    console.log('handleUpdateUserForm:', data)
+  /// Envia o formulário para atualização dos dados do usuário
+  const handleUpdateUserForm = async (data: UserDataFormProps) => {
+    try {
+      const dataCrypt = FormsCrypt.dataCrypt({ ...data, userId: dataUser.id })
+      const res = await api.post('system/user/update-user/save-update', dataCrypt)
+
+      toast({
+        title: 'Sucesso',
+        description: res.data.message,
+        status: 'success',
+        position: 'top',
+        duration: 3000,
+        isClosable: true,
+      })
+
+      modalConfirmation.onClose()
+
+      refetchUserAccessesList()
+      refetchListUsers()
+    } catch (error) {
+      return toast({
+        title: 'Erro ao atualizar usuário (500)',
+        description: 'Tente novamente',
+        status: 'error',
+        position: 'top',
+        duration: 3000,
+        isClosable: true,
+      })
+    }
   }
 
   return (

@@ -17,8 +17,10 @@ export function Pagination({ pages, items, page, perPage, viewing }: PaginationP
   const router = useRouter()
   const pathname = usePathname()
 
+  /// Busca os parametros da paginação na url
   const params = new URLSearchParams(searchParams.toString())
 
+  /// /////////////// Funções abaixo são para atualizar a URL e realizar a navegação ////////////////////
   const firstPage = () => {
     params.set('page', '1')
 
@@ -49,6 +51,7 @@ export function Pagination({ pages, items, page, perPage, viewing }: PaginationP
     return router.push(pathname + '?' + params.toString())
   }
 
+  /// Controla quantas linhas serão por página
   const handleRowsChange = (e: ChangeEvent<HTMLSelectElement>) => {
     params.set('per_page', String(e.target.value))
 

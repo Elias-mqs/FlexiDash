@@ -109,9 +109,10 @@ type UpdateUserProps = {
   newName?: string
   newEmail?: string
   newUsername?: string
+  newStatus?: boolean
 }
 
-const updateUser = async ({ userId, newName, newEmail, newUsername }: UpdateUserProps) => {
+const updateUser = async ({ userId, newName, newEmail, newUsername, newStatus }: UpdateUserProps) => {
   // Verificar se o email ou username são fornecidos
   const existingUserWithEmail = newEmail
     ? await prisma.sis_usuarios.findFirst({
@@ -138,7 +139,10 @@ const updateUser = async ({ userId, newName, newEmail, newUsername }: UpdateUser
     nome?: string
     email?: string
     usuario?: string
-  } = {}
+    ativo?: boolean
+  } = {
+    ativo: newStatus,
+  }
 
   // Adiciona os campos que foram alterados
   if (newName) updatedData.nome = newName
@@ -212,6 +216,160 @@ async function getUserAccess(userId: number) {
   }
 }
 
+/// ////////////////////////////////////////////////////////////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////////////////
+
+interface DeleteAccessesProps {
+  acsModIds: number[]
+  acsRoutIds: number[]
+  acsResIds: number[]
+}
+
+interface CreateAccessesProps {
+  modules: {
+    id: number
+    nome: string
+  }[]
+  routines: {
+    id: number
+    nome: string
+    modId: number
+  }[]
+  resources: {
+    id: number
+    rotina_id: number
+    nome: string
+  }[]
+}
+
+interface UpdateAccessesProps {
+  userId: number
+  deleteAccesses: DeleteAccessesProps
+  createAccesses: CreateAccessesProps
+}
+
+async function updateUserAccesses({ userId, deleteAccesses, createAccesses }: UpdateAccessesProps) {
+  /// Primeiro deleta os acessos que não são mais permitidos
+  try {
+    if (deleteAccesses.acsResIds.length > 0) {
+      await prisma.sis_acess_recurso.deleteMany({
+        where: {
+          id: { in: deleteAccesses.acsResIds },
+        },
+      })
+    }
+
+    if (deleteAccesses.acsRoutIds.length > 0) {
+      await prisma.sis_acess_rotina.deleteMany({
+        where: {
+          id: { in: deleteAccesses.acsRoutIds },
+        },
+      })
+    }
+
+    if (deleteAccesses.acsModIds.length > 0) {
+      await prisma.sis_acess_modulo.deleteMany({
+        where: {
+          id: { in: deleteAccesses.acsModIds },
+        },
+      })
+    }
+  } catch (error) {
+    console.error('Erro deletando acessos do usuario:', error)
+  }
+
+  /// ///////// Criar acessos dos módulos
+  if (createAccesses.modules.length > 0) {
+    try {
+      await prisma.sis_acess_modulo.createMany({
+        data: createAccesses.modules.map((mod) => ({
+          mod_id: mod.id,
+          usr_id: userId,
+        })),
+      })
+    } catch (error) {
+      console.error('Erro criando acessos a módulos para usuário:', error)
+      throw new Error('Falha criando acessos de módulos')
+    }
+  }
+
+  /// ///////// Criar acessos das rotinas
+  if (createAccesses.routines.length > 0) {
+    try {
+      /// Primeiro busca os ids dos acessos dos módulos
+      const accessModule = await prisma.sis_acess_modulo.findMany({
+        where: {
+          mod_id: { in: createAccesses.routines.map((modId) => modId.modId) },
+          usr_id: userId,
+        },
+        select: {
+          id: true,
+          mod_id: true,
+        },
+      })
+
+      /// Depois cria o acesso das rotinas
+      await prisma.sis_acess_rotina.createMany({
+        data: createAccesses.routines.map((routine) => {
+          const foundModId = accessModule.find((acsMod) => acsMod.mod_id === routine.modId)
+          return {
+            acess_mod_id: foundModId!.id,
+            rotina_id: routine.id,
+          }
+        }),
+      })
+    } catch (error) {
+      console.error('Erro criando acessos a rotinas para usuário:', error)
+      throw new Error('Falha criando acessos de rotinas')
+    }
+  }
+
+  /// ///////// Criar acessos dos recursos
+  if (createAccesses.resources.length > 0) {
+    try {
+      /// Buscar os acessos das rotinas cadastradas
+      const accessRoutine = await prisma.sis_usuarios.findMany({
+        where: {
+          id: userId,
+        },
+        select: {
+          sis_acess_modulo: {
+            select: {
+              sis_acess_rotina: {
+                select: {
+                  id: true,
+                  rotina_id: true,
+                },
+              },
+            },
+          },
+        },
+      })
+
+      /// Acessar somente os ids dos acessos de rotinas
+      const rotinaIds = accessRoutine.flatMap((usuario) =>
+        usuario.sis_acess_modulo.flatMap((modulo) => modulo.sis_acess_rotina.map((rotina) => rotina)),
+      )
+
+      /// Depois cria os acessos dos recursos
+      await prisma.sis_acess_recurso.createMany({
+        data: createAccesses.resources.map((resource) => {
+          const foundRoutineId = rotinaIds.find((routine) => routine.rotina_id === resource.rotina_id)
+
+          return {
+            acess_rot_id: foundRoutineId!.id,
+            rec_rotina_id: resource.id,
+          }
+        }),
+      })
+    } catch (error) {
+      console.error('Erro criando acessos aos recursos para usuário:', error)
+      throw new Error('Falha criando acessos de recursos')
+    }
+  }
+}
+
 export const users = {
   findUserById,
   findFirstUser,
@@ -221,4 +379,5 @@ export const users = {
   updateUser,
   createFirstAccess,
   getUserAccess,
+  updateUserAccesses,
 }

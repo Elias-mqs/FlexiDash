@@ -36,7 +36,7 @@ export interface ListUsersProps {
   ativo: boolean
 }
 
-interface ListUsersPaginationProps {
+export interface ListUsersPaginationProps {
   first: number
   prev: number | null
   next: number | null
@@ -54,10 +54,12 @@ export default function UpdateUser() {
   const [searchUser, setSearchUser] = useState('')
   const [activeModal, setActiveModal] = useState<ListUsersProps | null>(null)
 
+  /// Busca na url a página aberta e quantidade de itens por página para montar a paginação
   const page = searchParams.get('page') ? Number(searchParams.get('page')) : 1
   const perPage = searchParams.get('per_page') ? searchParams.get('per_page') : '10'
 
-  const { data: listUsersPagination } = useQuery<ListUsersPaginationProps>({
+  /// Busca lista de todos os usuários cadastrados no sistema
+  const { data: listUsersPagination, refetch: refetchListUsers } = useQuery<ListUsersPaginationProps>({
     queryKey: ['users', 'updateUserPage', 'getAll', page, perPage],
     queryFn: async () => {
       const response = await api.get(`system/user/list-users-pagination?page=${page}&per_page=${perPage}`)
@@ -67,6 +69,7 @@ export default function UpdateUser() {
     placeholderData: keepPreviousData,
   })
 
+  /// isLoading
   if (!listUsersPagination || listUsersPagination.data.length < 1) {
     return (
       <Flex as="main" flex="1" direction="column" align="center" justify="center" gap={2}>
@@ -77,6 +80,7 @@ export default function UpdateUser() {
     )
   }
 
+  /// Filtro do input "Buscar"
   const filteredList =
     searchUser.length > 0
       ? listUsersPagination.data.filter((user) =>
@@ -84,6 +88,7 @@ export default function UpdateUser() {
         )
       : listUsersPagination.data
 
+  /// Controle de abertura do modal de informações do usuário
   const handleOpen = (modalUser: ListUsersProps) => {
     setActiveModal(modalUser)
     onOpen()
@@ -175,7 +180,12 @@ export default function UpdateUser() {
         />
       )}
 
-      <UpdateUserModal isOpen={isOpen} onClose={onClose} activeModal={activeModal} />
+      <UpdateUserModal
+        isOpen={isOpen}
+        onClose={onClose}
+        activeModal={activeModal}
+        refetchListUsers={refetchListUsers}
+      />
     </main>
   )
 }
