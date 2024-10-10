@@ -1,6 +1,7 @@
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense } from 'react'
 
 import { Select } from '@chakra-ui/react'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
 interface CodArmazProps {
   cod: string
@@ -12,10 +13,9 @@ interface ArmazProps {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function Armazens({ field }: any) {
-  const [armaz, setArmaz] = useState<CodArmazProps[]>([])
-
-  useEffect(() => {
-    async function getArmaz() {
+  const { data: armaz } = useQuery({
+    queryKey: ['get-armazens', 'page-status-inventory', 'input-select'],
+    queryFn: async () => {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_ENDPOINT_ARMAZENS}`, {
           method: 'GET',
@@ -29,14 +29,32 @@ export function Armazens({ field }: any) {
 
         const data: ArmazProps = await res.json()
 
-        setArmaz(data.armaz)
+        return data.armaz as CodArmazProps[]
       } catch (error) {
-        throw new Error('Failed to fetch data')
+        console.error('Error fetching data get-armazens', error)
       }
-    }
+    },
+    placeholderData: keepPreviousData,
+    refetchOnWindowFocus: false,
+  })
 
-    getArmaz()
-  }, [])
+  if (!armaz) {
+    return (
+      <Suspense>
+        <Select
+          {...field}
+          placeholder="XX"
+          color="gray.500"
+          fontWeight={500}
+          focusBorderColor="blue.300"
+          _hover={{ cursor: 'pointer' }}
+          required
+        >
+          <option style={{ fontWeight: 500, backgroundColor: '#f5f5f5' }}></option>
+        </Select>
+      </Suspense>
+    )
+  }
 
   return (
     <Suspense>

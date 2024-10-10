@@ -14,7 +14,7 @@ export interface InventoryData {
 
 export default function StatusInventory() {
   const { data, refetch } = useQuery<InventoryData | undefined>({
-    queryKey: ['verify-status'],
+    queryKey: ['verify-status', 'page-status-inventory'],
     queryFn: async () => {
       try {
         const response = await api.get('modules/stock/inventory/verifyStatus')
@@ -25,6 +25,7 @@ export default function StatusInventory() {
       }
     },
     initialData: { status: undefined, document: '', armaz: '' },
+    refetchOnWindowFocus: false,
   })
 
   if (data?.status === undefined) {

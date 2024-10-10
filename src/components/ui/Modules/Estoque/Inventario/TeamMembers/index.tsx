@@ -36,6 +36,7 @@ export function TeamMembers({ setValue }: any) {
 
       return listUsers
     },
+    refetchOnWindowFocus: false,
   })
 
   // Filtro para usuários

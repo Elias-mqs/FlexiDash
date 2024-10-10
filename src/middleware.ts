@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 
 import { fetchAccess } from '@/utils/middleware/fetchData'
+import { verifyStatusInventory } from '@/utils/middleware/modules/stock/inventory'
 import { AuthProps, ListModulesProps, ListResourceMiddlewareProps, ListRoutinesProps } from '@/utils/middleware/types'
 
 import { FormsCrypt } from './services'
@@ -120,6 +121,15 @@ export async function middleware(request: NextRequest) {
 
               if (!isAuthorized) {
                 return NextResponse.redirect(urlRoutine)
+              }
+
+              /// Aqui eu estou tratando a rota /shelf do inventario
+              if (isAuthorized && resourceName === 'shelf') {
+                const statusInventory = await verifyStatusInventory(baseUrl!)
+
+                if (statusInventory === false) {
+                  return NextResponse.redirect(urlRoutine)
+                }
               }
             } catch (error) {
               console.error('Erro listResources no middleware: ', error)

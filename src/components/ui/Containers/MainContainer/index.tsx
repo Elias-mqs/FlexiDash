@@ -5,21 +5,15 @@ import { Flex } from '@chakra-ui/react'
 import { Footer } from '@/components/ui/Footer'
 import { Header } from '@/components/ui/Header'
 import { Sidebar } from '@/components/ui/Sidebar'
-import { useLayoutComponent } from '@/context/LayoutComponents/LayoutCompContext'
+// import { useLayoutComponent } from '@/context/LayoutComponents/LayoutCompContext'
 
 export function MainContainer({ children }: { children: React.ReactNode }) {
-  const { isExpanded } = useLayoutComponent()
+  // const { isExpanded } = useLayoutComponent()
 
   return (
-    <Flex direction={{ base: 'column', md: 'row' }} w="100%" h="100%">
+    <Flex direction={{ base: 'column', md: 'row' }} w="100%" h="100vh">
       <Sidebar />
-      <Flex
-        w="100%"
-        direction="column"
-        ml={{ base: 0, md: isExpanded ? '200px' : '70px' }}
-        mt={{ base: isExpanded ? '220px' : '0px', md: 0 }}
-        transition="margin-left .5s ease, margin-top .5s ease"
-      >
+      <Flex w="100%" direction="column" maxH="99.5vh" flex="1" transition="margin-left .5s ease, margin-top .5s ease">
         <Header />
         {/* o H do flex abaixo é 100%, eu alterei pra 80vh para compensar a saida provisória do Sidebar */}
         <Flex

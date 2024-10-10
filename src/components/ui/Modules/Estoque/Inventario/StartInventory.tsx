@@ -39,7 +39,6 @@ export function StartInventory() {
     const formCrypt = FormsCrypt.dataCrypt({ ...data, usrId: dataUser.id })
 
     try {
-      // VOU ADICIONAR MAIS UMAS VARIAVEIS SÓ PARA TESTAR A API
       await api.post('modules/stock/inventory/startInventory', formCrypt)
 
       toast({

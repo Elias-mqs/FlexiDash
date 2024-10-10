@@ -1,7 +1,7 @@
 'use client'
 
 import { Flex, Grid, Spinner, Text } from '@chakra-ui/react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import Image from 'next/image'
 import { BsBookshelf } from 'react-icons/bs'
 import { FaCogs, FaArchive } from 'react-icons/fa'
@@ -10,6 +10,7 @@ import { IconType } from 'react-icons/lib'
 import { ScreenCardResource } from '@/components/ui'
 import InventoryProvider from '@/context/Inventory/InventoryContext'
 import { useAccessUser, ListResourceProps } from '@/context/SystemLists/AccessUserContext'
+import { useUserData } from '@/context/User/UserDataContext'
 import { api, FormsCrypt } from '@/services'
 
 const resourceDetails: Record<string, { icon: IconType; route: string }> = {
@@ -37,13 +38,23 @@ const availableResources = async (dataList: ListResourceProps[]) => {
 
 export default function HomeInventory() {
   const { useListResource } = useAccessUser()
+  const dataUser = useUserData()
+
+  const queryClient = useQueryClient()
 
   const resourceList = useListResource()
 
   /// Busca opções disponiveis na rotina inventário
   const { data: dataInventory } = useQuery<{ listResourceInventory: ListResourceProps[]; status: string }>({
     queryKey: ['access-permissions-resource', resourceList],
-    queryFn: () => availableResources(resourceList!),
+    queryFn: async () => {
+      const dataInventory = await availableResources(resourceList!)
+
+      /// Invalidar a query do drop menu força um refetch para atualizar o button das prateleiras
+      queryClient.invalidateQueries({ queryKey: ['sub-menu-sidebar', 'fetch-item-menu', dataUser.id] })
+
+      return dataInventory
+    },
     refetchOnWindowFocus: false,
     enabled: (resourceList?.length ?? 0) > 0,
   })

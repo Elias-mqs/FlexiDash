@@ -64,11 +64,10 @@ export default function Modules() {
   }
 
   const { data: listMod } = useQuery({
-    queryKey: ['acsModData'],
+    queryKey: ['acsModData', 'module-selection', 'access-module'],
     queryFn: fetchModules,
     enabled: true,
     refetchOnWindowFocus: false,
-    staleTime: 5000,
   })
 
   /// ///////////////////////////////////////////////////////////////////////////////////////////////
